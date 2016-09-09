@@ -1,0 +1,56 @@
+{
+  "name": "zscroller",
+  "version": "0.2.0",
+  "description": "dom scroller based on zynga scroller",
+  "keywords": [
+    "zynga scroller",
+    "dom scroller"
+  ],
+  "homepage": "https://github.com/yiminghe/zscroller",
+  "maitainers": [
+    "yiminghe@gmail.com",
+    "hualei5280@gmail.com"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yiminghe/zscroller.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yiminghe/zscroller/issues"
+  },
+  "files": [
+    "lib",
+    "vendor",
+    "assets/*.css"
+  ],
+  "licenses": "MIT",
+  "main": "./lib/DOMScroller",
+  "config": {
+    "port": 8007
+  },
+  "scripts": {
+    "compile": "rc-tools run compile",
+    "build": "rc-tools run build",
+    "gh-pages": "rc-tools run gh-pages",
+    "start": "rc-tools run server",
+    "pub": "rc-tools run pub",
+    "lint": "rc-tools run lint",
+    "karma": "rc-tools run karma",
+    "saucelabs": "rc-tools run saucelabs",
+    "test": "rc-tools run test",
+    "chrome-test": "rc-tools run chrome-test",
+    "coverage": "rc-tools run coverage"
+  },
+  "devDependencies": {
+    "expect.js": "0.3.x",
+    "fastclick": "^1.0.6",
+    "pre-commit": "1.x",
+    "rc-tools": "5.x",
+    "react": "15.x",
+    "react-addons-test-utils": "15.x",
+    "react-dom": "15.x"
+  },
+  "pre-commit": [
+    "lint"
+  ]
+}
