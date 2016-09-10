@@ -29,19 +29,19 @@ function DOMScroller(content, options = {}) {
   this.options = {
     ...options,
     scrollingComplete: () => {
-      if (options.scrollingComplete) {
-        options.scrollingComplete();
-      }
-      if (scrollbars) {
-        this.clearScrollbarTimer();
-        this.timer = setTimeout(() => {
+      this.clearScrollbarTimer();
+      this.timer = setTimeout(() => {
+        if (options.scrollingComplete) {
+          options.scrollingComplete();
+        }
+        if (scrollbars) {
           ['x', 'y'].forEach((k) => {
             if (scrollbars[k]) {
               this.setScrollbarOpacity(k, 0);
             }
           });
-        }, 0);
-      }
+        }
+      }, 0);
     },
   };
 
@@ -72,10 +72,11 @@ function DOMScroller(content, options = {}) {
   }
 
   let init = true;
+  const contentStyle = content.style;
 
   // create Scroller instance
   this.scroller = new Scroller((left, top, zoom) => {
-    setTransform(content.style, `translate3d(${-left}px,${-top}px,0) scale(${zoom})`);
+    setTransform(contentStyle, `translate3d(${-left}px,${-top}px,0) scale(${zoom})`);
     if (scrollbars) {
       ['x', 'y'].forEach((k) => {
         if (scrollbars[k]) {
@@ -117,6 +118,10 @@ function DOMScroller(content, options = {}) {
   // reflow for the first time
   this.reflow();
 }
+
+DOMScroller.prototype.setDisabled = function setDisabled(disabled) {
+  this.disabled = disabled;
+};
 
 DOMScroller.prototype.clearScrollbarTimer = function clearScrollbarTimer() {
   if (this.timer) {
@@ -200,7 +205,8 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
       // Don't react if initial down happens on a form element
       if (e.touches[0] &&
         e.touches[0].target &&
-        e.touches[0].target.tagName.match(/input|textarea|select/i)) {
+        e.touches[0].target.tagName.match(/input|textarea|select/i) ||
+        this.disabled) {
         return;
       }
       this.clearScrollbarTimer();
@@ -226,7 +232,10 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
   } else {
     let mousedown = false;
     this.container.addEventListener('mousedown', this.onMouseDown = (e) => {
-      if (e.target.tagName.match(/input|textarea|select/i)) {
+      if (
+        e.target.tagName.match(/input|textarea|select/i) ||
+        this.disabled
+      ) {
         return;
       }
       this.clearScrollbarTimer();

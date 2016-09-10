@@ -523,7 +523,7 @@ var members = {
    * @param animate {Boolean?false} Whether the scrolling should happen using an animation
    * @param zoom {Number?null} Zoom level to go to
    */
-  scrollTo: function (left, top, animate, zoom) {
+  scrollTo: function (left, top, animate, zoom, callback) {
 
     var self = this;
 
@@ -589,6 +589,9 @@ var members = {
     // that rendered position is really in-sync with internal data
     if (left === self.__scrollLeft && top === self.__scrollTop) {
       animate = false;
+      if (callback) {
+        callback();
+      }
     }
 
     // Publish new values
@@ -1094,6 +1097,7 @@ var members = {
         if (animationId === self.__isAnimating) {
           self.__isAnimating = false;
         }
+
         if (self.__didDecelerationComplete || wasFinished) {
           self.options.scrollingComplete();
         }
@@ -1193,7 +1197,12 @@ var members = {
     };
 
     // How much velocity is required to keep the deceleration running
-    var minVelocityToKeepDecelerating = self.options.snapping ? 4 : 0.001;
+    // added by yiminghe
+    var minVelocityToKeepDecelerating = self.options.minVelocityToKeepDecelerating;
+
+    if (!minVelocityToKeepDecelerating) {
+      minVelocityToKeepDecelerating = self.options.snapping ? 4 : 0.001;
+    }
 
     // Detect whether it's still worth to continue animating steps
     // If we are already slow enough to not being user perceivable anymore, we stop the whole process here.
@@ -1207,12 +1216,9 @@ var members = {
 
     var completed = function (renderedFramesPerSecond, animationId, wasFinished) {
       self.__isDecelerating = false;
-      if (self.__didDecelerationComplete) {
-        self.options.scrollingComplete();
-      }
-
       // Animate to grid when snapping is active, otherwise just fix out-of-boundary positions
-      self.scrollTo(self.__scrollLeft, self.__scrollTop, self.options.snapping);
+      // fixed by yiminghe, in case call scrollingComplete twice
+      self.scrollTo(self.__scrollLeft, self.__scrollTop, self.options.snapping, null, self.__didDecelerationComplete && self.options.scrollingComplete);
     };
 
     // Start animation and switch on flag
@@ -1259,7 +1265,6 @@ var members = {
       }
 
     }
-
 
     //
     // UPDATE SCROLL POSITION

@@ -23,13 +23,15 @@
  * based on the pure time difference.
  */
 
-var time = Date.now || function () {
-    return +new Date();
-  };
 var desiredFrames = 60;
 var millisecondsPerSecond = 1000;
 var running = {};
 var counter = 1;
+var win = typeof window !== undefined ? window : undefined;
+
+if (!win) {
+  win = typeof global !== undefined ? global : {};
+}
 
 var Animate = {
 
@@ -42,7 +44,7 @@ var Animate = {
   requestAnimationFrame: (function () {
 
     // Check for request animation Frame support
-    var requestFrame = global.requestAnimationFrame || global.webkitRequestAnimationFrame || global.mozRequestAnimationFrame || global.oRequestAnimationFrame;
+    var requestFrame = win.requestAnimationFrame || win.webkitRequestAnimationFrame || win.mozRequestAnimationFrame || win.oRequestAnimationFrame;
     var isNative = !!requestFrame;
 
     if (requestFrame && !/requestAnimationFrame\(\)\s*\{\s*\[native code\]\s*\}/i.test(requestFrame.toString())) {
@@ -149,7 +151,7 @@ var Animate = {
    */
   start: function (stepCallback, verifyCallback, completedCallback, duration, easingMethod, root) {
 
-    var start = time();
+    var start = +new Date();
     var lastFrame = start;
     var percent = 0;
     var dropCounter = 0;
@@ -175,7 +177,7 @@ var Animate = {
       var render = virtual !== true;
 
       // Get current time
-      var now = time();
+      var now = +new Date();
 
       // Verification is executed before next animation step
       if (!running[id] || (verifyCallback && !verifyCallback(id))) {
