@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import DOMScroller from 'zscroller';
+import ZScroller from 'zscroller';
 import 'zscroller/assets/index.less';
 
 const root = ReactDOM.render(
@@ -21,6 +21,9 @@ const root = ReactDOM.render(
   </div>, document.getElementById('__react-content'));
 
 /* eslint no-new:0 */
-new DOMScroller(root.firstChild, {
+const zscroller = new ZScroller(root.firstChild, {
   scrollbars: true,
+  onScroll() {
+    console.log(zscroller.scroller.getValues());
+  },
 });

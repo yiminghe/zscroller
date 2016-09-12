@@ -76,6 +76,9 @@ function DOMScroller(content, options = {}) {
 
   // create Scroller instance
   this.scroller = new Scroller((left, top, zoom) => {
+    if (!init && options.onScroll) {
+      options.onScroll();
+    }
     setTransform(contentStyle, `translate3d(${-left}px,${-top}px,0) scale(${zoom})`);
     if (scrollbars) {
       ['x', 'y'].forEach((k) => {

@@ -50,6 +50,7 @@ most same with [zynga scroller](https://zynga.github.io/scroller/), extra:
 | name     | description    | type     | default      |
 |----------|----------------|----------|--------------|
 |scrollbars |whether show scrollbars | bool | false |
+|onScroll | onScroll callback | () => void | null |
 
 ### method
 
