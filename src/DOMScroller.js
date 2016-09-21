@@ -13,7 +13,7 @@ function setTransformOrigin(nodeStyle, value) {
   nodeStyle.MozTransformOrigin = value;
 }
 
-function DOMScroller(content, options = {}) {
+function DOMScroller(content, options = {}, innerPlaceholder) {
   let scrollbars;
   let indicators;
   let indicatorsSize;
@@ -23,7 +23,7 @@ function DOMScroller(content, options = {}) {
   let contentSize;
   let clientSize;
 
-
+  this.innerPlaceholder = innerPlaceholder;
   this.content = content;
   this.container = content.parentNode;
   this.options = {
@@ -159,9 +159,11 @@ DOMScroller.prototype.setIndicatorSize = function setIndicatorSize(axis, value) 
 };
 
 DOMScroller.prototype.reflow = function reflow() {
+  const oW = this.innerPlaceholder ? this.innerPlaceholder.offsetWidth : this.content.offsetWidth;
+  const oH = this.innerPlaceholder ? this.innerPlaceholder.offsetHeight : this.content.offsetHeight;
   if (this.scrollbars) {
-    this.contentSize.x = this.content.offsetWidth;
-    this.contentSize.y = this.content.offsetHeight;
+    this.contentSize.x = oW;
+    this.contentSize.y = oH;
     this.clientSize.x = this.container.clientWidth;
     this.clientSize.y = this.container.clientHeight;
     if (this.scrollbars.x) {
@@ -174,7 +176,7 @@ DOMScroller.prototype.reflow = function reflow() {
   // set the right scroller dimensions
   this.scroller.setDimensions(
     this.container.clientWidth, this.container.clientHeight,
-    this.content.offsetWidth, this.content.offsetHeight
+    oW, oH
   );
 
   // refresh the position for zooming purposes
