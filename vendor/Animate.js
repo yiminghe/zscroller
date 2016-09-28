@@ -27,10 +27,10 @@ var desiredFrames = 60;
 var millisecondsPerSecond = 1000;
 var running = {};
 var counter = 1;
-var win = typeof window !== undefined ? window : undefined;
+var win = typeof window !== 'undefined' ? window : undefined;
 
 if (!win) {
-  win = typeof global !== undefined ? global : {};
+  win = typeof global !== 'undefined' ? global : {};
 }
 
 var Animate = {
