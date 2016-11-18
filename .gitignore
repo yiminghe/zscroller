@@ -25,3 +25,4 @@ lib
 coverage
 *.map
 !tests/index.js
+yarn.lock

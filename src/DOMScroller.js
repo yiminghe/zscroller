@@ -31,6 +31,9 @@ function DOMScroller(content, options = {}) {
     scrollingComplete: () => {
       this.clearScrollbarTimer();
       this.timer = setTimeout(() => {
+        if (this._destroyed) {
+          return;
+        }
         if (options.scrollingComplete) {
           options.scrollingComplete();
         }
@@ -183,6 +186,7 @@ DOMScroller.prototype.reflow = function reflow() {
 };
 
 DOMScroller.prototype.destroy = function destroy() {
+  this._destroyed = true;
   window.removeEventListener('resize', this.onResize, false);
   this.container.removeEventListener('touchstart', this.onTouchStart, false);
   this.container.removeEventListener('touchmove', this.onTouchMove, false);

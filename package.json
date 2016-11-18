@@ -1,16 +1,12 @@
 {
   "name": "zscroller",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "dom scroller based on zynga scroller",
   "keywords": [
     "zynga scroller",
     "dom scroller"
   ],
   "homepage": "https://github.com/yiminghe/zscroller",
-  "maitainers": [
-    "yiminghe@gmail.com",
-    "hualei5280@gmail.com"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/yiminghe/zscroller.git"
