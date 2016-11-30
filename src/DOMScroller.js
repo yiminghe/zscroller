@@ -1,3 +1,5 @@
+require('raf'); // vendor check
+
 const Scroller = require('../vendor/Scroller');
 const MIN_INDICATOR_SIZE = 8;
 
@@ -206,82 +208,87 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
     that.reflow();
   }, false);
 
-  // touch devices bind touch events
-  if ('ontouchstart' in window) {
-    this.container.addEventListener('touchstart', this.onTouchStart = (e) => {
-      // Don't react if initial down happens on a form element
-      if (e.touches[0] &&
-        e.touches[0].target &&
-        e.touches[0].target.tagName.match(/input|textarea|select/i) ||
-        this.disabled) {
-        return;
-      }
-      this.clearScrollbarTimer();
-      // reflow since the container may have changed
-      that.reflow();
-      that.scroller.doTouchStart(e.touches, e.timeStamp);
-    }, false);
+  let lockMouse = false;
+  let releaseLockTimer;
 
-    this.container.addEventListener('touchmove', this.onTouchMove = (e) => {
+
+  this.container.addEventListener('touchstart', this.onTouchStart = (e) => {
+    lockMouse = true;
+    if (releaseLockTimer) {
+      clearTimeout(releaseLockTimer);
+      releaseLockTimer = null;
+    }
+    // Don't react if initial down happens on a form element
+    if (e.touches[0] &&
+      e.touches[0].target &&
+      e.touches[0].target.tagName.match(/input|textarea|select/i) ||
+      this.disabled) {
+      return;
+    }
+    this.clearScrollbarTimer();
+    // reflow since the container may have changed
+    that.reflow();
+    that.scroller.doTouchStart(e.touches, e.timeStamp);
+  }, false);
+
+  this.container.addEventListener('touchmove', this.onTouchMove = (e) => {
+    e.preventDefault();
+    that.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+  }, false);
+
+  this.container.addEventListener('touchend', this.onTouchEnd = (e) => {
+    that.scroller.doTouchEnd(e.timeStamp);
+    releaseLockTimer = setTimeout(() => {
+      lockMouse = false;
+    }, 300);
+  }, false);
+
+  this.container.addEventListener('touchcancel', this.onTouchCancel = (e) => {
+    that.scroller.doTouchEnd(e.timeStamp);
+    releaseLockTimer = setTimeout(() => {
+      lockMouse = false;
+    }, 300);
+  }, false);
+
+  this.onMouseUp = (e) => {
+    that.scroller.doTouchEnd(e.timeStamp);
+    document.removeEventListener('mousemove', this.onMouseMove, false);
+    document.removeEventListener('mouseup', this.onMouseUp, false);
+  };
+
+  this.onMouseMove = (e) => {
+    that.scroller.doTouchMove([{
+      pageX: e.pageX,
+      pageY: e.pageY,
+    }], e.timeStamp);
+  };
+
+  this.container.addEventListener('mousedown', this.onMouseDown = (e) => {
+    if (
+      lockMouse ||
+      e.target.tagName.match(/input|textarea|select/i) ||
+      this.disabled
+    ) {
+      return;
+    }
+    this.clearScrollbarTimer();
+    that.scroller.doTouchStart([{
+      pageX: e.pageX,
+      pageY: e.pageY,
+    }], e.timeStamp);
+    // reflow since the container may have changed
+    that.reflow();
+    e.preventDefault();
+    document.addEventListener('mousemove', this.onMouseMove, false);
+    document.addEventListener('mouseup', this.onMouseUp, false);
+  }, false);
+
+  this.container.addEventListener('mousewheel', this.onMouseWheel = (e) => {
+    if (that.options.zooming) {
+      that.scroller.doMouseZoom(e.wheelDelta, e.timeStamp, e.pageX, e.pageY);
       e.preventDefault();
-      that.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-    }, false);
-
-    this.container.addEventListener('touchend', this.onTouchEnd = (e) => {
-      that.scroller.doTouchEnd(e.timeStamp);
-    }, false);
-
-    this.container.addEventListener('touchcancel', this.onTouchCancel = (e) => {
-      that.scroller.doTouchEnd(e.timeStamp);
-    }, false);
-
-    // non-touch bind mouse events
-  } else {
-    let mousedown = false;
-    this.container.addEventListener('mousedown', this.onMouseDown = (e) => {
-      if (
-        e.target.tagName.match(/input|textarea|select/i) ||
-        this.disabled
-      ) {
-        return;
-      }
-      this.clearScrollbarTimer();
-      that.scroller.doTouchStart([{
-        pageX: e.pageX,
-        pageY: e.pageY,
-      }], e.timeStamp);
-      mousedown = true;
-      // reflow since the container may have changed
-      that.reflow();
-      e.preventDefault();
-    }, false);
-
-    document.addEventListener('mousemove', this.onMouseMove = (e) => {
-      if (!mousedown) {
-        return;
-      }
-      that.scroller.doTouchMove([{
-        pageX: e.pageX,
-        pageY: e.pageY,
-      }], e.timeStamp);
-      mousedown = true;
-    }, false);
-
-    document.addEventListener('mouseup', this.onMouseUp = (e) => {
-      if (!mousedown) {
-        return;
-      }
-      that.scroller.doTouchEnd(e.timeStamp);
-      mousedown = false;
-    }, false);
-
-    this.container.addEventListener('mousewheel', this.onMouseWheel = (e) => {
-      if (that.options.zooming) {
-        that.scroller.doMouseZoom(e.wheelDelta, e.timeStamp, e.pageX, e.pageY);
-        e.preventDefault();
-      }
-    }, false);
-  }
+    }
+  }, false);
 };
 
 module.exports = DOMScroller;

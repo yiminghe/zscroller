@@ -1,6 +1,6 @@
 {
   "name": "zscroller",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "dom scroller based on zynga scroller",
   "keywords": [
     "zynga scroller",
@@ -48,5 +48,8 @@
   },
   "pre-commit": [
     "lint"
-  ]
+  ],
+  "dependencies": {
+    "raf": "^3.3.0"
+  }
 }
