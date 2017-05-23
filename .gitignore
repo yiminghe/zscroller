@@ -26,3 +26,4 @@ coverage
 *.map
 !tests/index.js
 yarn.lock
+/es/

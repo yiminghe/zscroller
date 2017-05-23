@@ -12,8 +12,11 @@
  * License: MIT + Apache (V2)
  */
 
+
+import Animate from './Animate';
+
 var Scroller;
-var Animate = require('./Animate');
+
 
 var NOOP = function () {
 };
@@ -887,7 +890,7 @@ var members = {
       // Otherwise figure out whether we are switching into dragging mode now.
     } else {
 
-      var minimumTrackingForScroll = self.options.locking ? 3 : 0;
+      var minimumTrackingForScroll = 3;
       var minimumTrackingForDrag = 5;
 
       var distanceX = Math.abs(currentTouchLeft - self.__initialTouchLeft);
@@ -895,6 +898,22 @@ var members = {
 
       self.__enableScrollX = self.options.scrollingX && distanceX >= minimumTrackingForScroll;
       self.__enableScrollY = self.options.scrollingY && distanceY >= minimumTrackingForScroll;
+
+      let radian;
+
+      if (self.options.locking && self.__enableScrollY) {
+        radian = radian || Math.atan2(distanceY, distanceX);
+        if (radian < Math.PI / 4) {
+          self.__enableScrollY = false;
+        }
+      }
+
+      if (self.options.locking && self.__enableScrollX) {
+        radian = radian || Math.atan2(distanceY, distanceX);
+        if (radian > Math.PI / 4) {
+          self.__enableScrollX = false;
+        }
+      }
 
       positions.push(self.__scrollLeft, self.__scrollTop, timeStamp);
 
@@ -1351,4 +1370,4 @@ for (var key in members) {
   Scroller.prototype[key] = members[key];
 }
 
-module.exports = Scroller;
+export default Scroller;

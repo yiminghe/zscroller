@@ -1,6 +1,5 @@
-require('raf'); // vendor check
+import Scroller from './Scroller';
 
-const Scroller = require('../vendor/Scroller');
 const MIN_INDICATOR_SIZE = 8;
 
 function setTransform(nodeStyle, value) {
@@ -291,4 +290,4 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
   }, false);
 };
 
-module.exports = DOMScroller;
+export default DOMScroller;

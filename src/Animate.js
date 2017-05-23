@@ -22,7 +22,7 @@
  * rendering. This eases a lot of cases where it might be pretty complex to break down a state
  * based on the pure time difference.
  */
-var raf = require('raf');
+import raf from 'raf';
 
 var desiredFrames = 60;
 var millisecondsPerSecond = 1000;
@@ -151,4 +151,4 @@ var Animate = {
   }
 };
 
-module.exports = Animate;
+export default Animate;

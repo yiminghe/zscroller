@@ -1,1 +1,4 @@
-vendor/*.js
+src/Animate.js
+src/Scroller.js
+lib/*
+es/*
