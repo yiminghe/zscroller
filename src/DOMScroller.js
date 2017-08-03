@@ -231,7 +231,9 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
   }, false);
 
   this.container.addEventListener('touchmove', this.onTouchMove = (e) => {
-    e.preventDefault();
+    if (this.options.preventDefaultOnTouchMove !== false) {
+      e.preventDefault();
+    }
     that.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
   }, false);
 
