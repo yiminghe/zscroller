@@ -588,6 +588,11 @@ var members = {
     left = Math.max(Math.min(self.__maxScrollLeft, left), 0);
     top = Math.max(Math.min(self.__maxScrollTop, top), 0);
 
+    // Publish new values
+    if (!self.__isTracking) {
+      self.__publish(left, top, zoom, animate);
+    }
+
     // Don't animate when no change detected, still call publish to make sure
     // that rendered position is really in-sync with internal data
     if (left === self.__scrollLeft && top === self.__scrollTop) {
@@ -595,11 +600,6 @@ var members = {
       if (callback) {
         callback();
       }
-    }
-
-    // Publish new values
-    if (!self.__isTracking) {
-      self.__publish(left, top, zoom, animate);
     }
 
   },
