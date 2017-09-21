@@ -127,7 +127,9 @@ function DOMScroller(content) {
   // reflow for the first time
   this.reflow();
 }
-
+DOMScroller.prototype.scrollTo = function scrollTo(left, top, animate, zoom, callback) {
+    this.scroller.scrollTo(left, top, animate, zoom, callback);
+};
 DOMScroller.prototype.setDisabled = function setDisabled(disabled) {
   this.disabled = disabled;
 };
