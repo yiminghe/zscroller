@@ -125,9 +125,7 @@ function DOMScroller(content, options = {}) {
   // reflow for the first time
   this.reflow();
 }
-DOMScroller.prototype.scrollTo = function scrollTo(left, top, animate, zoom, callback) {
-    this.scroller.scrollTo(left, top, animate, zoom, callback);
-};
+
 DOMScroller.prototype.setDisabled = function setDisabled(disabled) {
   this.disabled = disabled;
 };
@@ -139,8 +137,8 @@ DOMScroller.prototype.clearScrollbarTimer = function clearScrollbarTimer() {
   }
 };
 
-DOMScroller.prototype.setScrollbarOpacity = function setScrollbarOpacity(axis, opacity,force) {
-  if (this.scrollbarsOpacity[axis] !== opacity || force===true) {
+DOMScroller.prototype.setScrollbarOpacity = function setScrollbarOpacity(axis, opacity) {
+  if (this.scrollbarsOpacity[axis] !== opacity) {
     this.scrollbars[axis].style.opacity = opacity;
     this.scrollbarsOpacity[axis] = opacity;
   }
