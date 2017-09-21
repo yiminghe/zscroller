@@ -139,8 +139,8 @@ DOMScroller.prototype.clearScrollbarTimer = function clearScrollbarTimer() {
   }
 };
 
-DOMScroller.prototype.setScrollbarOpacity = function setScrollbarOpacity(axis, opacity) {
-  if (this.scrollbarsOpacity[axis] !== opacity) {
+DOMScroller.prototype.setScrollbarOpacity = function setScrollbarOpacity(axis, opacity,force) {
+  if (this.scrollbarsOpacity[axis] !== opacity || force===true) {
     this.scrollbars[axis].style.opacity = opacity;
     this.scrollbarsOpacity[axis] = opacity;
   }
