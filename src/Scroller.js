@@ -946,7 +946,10 @@ var members = {
     }
 
     var self = this;
-
+    
+    if(self.options.onTouchEnd){
+      self.options.onTouchEnd();
+    }
     // Ignore event when tracking is not enabled (no touchstart event on element)
     // This is required as this listener ('touchmove') sits on the document and not on the element itself.
     if (!self.__isTracking) {
