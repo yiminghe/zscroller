@@ -75,8 +75,10 @@ Scroller = function (callback, options) {
     penetrationDeceleration: 0.03,
 
     /** This configures the amount of change applied to acceleration when reaching boundaries  **/
-    penetrationAcceleration: 0.08
+    penetrationAcceleration: 0.08,
 
+    /** 设置滚动条顶部最小距离限制 **/
+    scrollTopLimit:null,
   };
 
   for (var key in options) {
@@ -1071,6 +1073,12 @@ var members = {
 
     var self = this;
 
+    /** 滚动顶部距离限制 **/
+    if(self.options.scrollTopLimit !== null){
+      if(top < self.options.scrollTopLimit){
+        top = self.options.scrollTopLimit;
+      }
+    }
     // Remember whether we had an animation, then we try to continue based on the current "drive" of the animation
     var wasAnimating = self.__isAnimating;
     if (wasAnimating) {
