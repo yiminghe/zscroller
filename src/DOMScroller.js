@@ -14,6 +14,21 @@ function setTransformOrigin(nodeStyle, value) {
   nodeStyle.MozTransformOrigin = value;
 }
 
+let supportsPassive = false;
+try {
+  const opts = Object.defineProperty({}, 'passive', {
+    get() {
+      supportsPassive = true;
+    },
+  });
+  window.addEventListener('test', null, opts);
+} catch (e) {
+  // empty
+}
+
+const willPreventDefault = supportsPassive ? { passive: false } : false;
+const willNotPreventDefault = supportsPassive ? { passive: true } : false;
+
 function DOMScroller(content, options = {}) {
   let scrollbars;
   let indicators;
@@ -24,9 +39,8 @@ function DOMScroller(content, options = {}) {
   let contentSize;
   let clientSize;
 
-
   this.content = content;
-  this.container = content.parentNode;
+  const container = this.container = content.parentNode;
   this.options = {
     ...options,
     scrollingComplete: () => {
@@ -70,7 +84,7 @@ function DOMScroller(content, options = {}) {
         indicatorsSize[k] = -1;
         scrollbarsOpacity[k] = 0;
         indicatorsPos[k] = 0;
-        this.container.appendChild(scrollbars[k]);
+        container.appendChild(scrollbars[k]);
       }
     });
   }
@@ -145,73 +159,80 @@ DOMScroller.prototype.setScrollbarOpacity = function setScrollbarOpacity(axis, o
 };
 
 DOMScroller.prototype.setIndicatorPos = function setIndicatorPos(axis, value) {
-  if (this.indicatorsPos[axis] !== value) {
+  const { indicatorsPos, indicators } = this;
+  if (indicatorsPos[axis] !== value) {
     if (axis === 'x') {
-      setTransform(this.indicators[axis].style, `translate3d(${value}px,0,0)`);
+      setTransform(indicators[axis].style, `translate3d(${value}px,0,0)`);
     } else {
-      setTransform(this.indicators[axis].style, `translate3d(0, ${value}px,0)`);
+      setTransform(indicators[axis].style, `translate3d(0, ${value}px,0)`);
     }
-    this.indicatorsPos[axis] = value;
+    indicatorsPos[axis] = value;
   }
 };
 
 DOMScroller.prototype.setIndicatorSize = function setIndicatorSize(axis, value) {
-  if (this.indicatorsSize[axis] !== value) {
-    this.indicators[axis].style[axis === 'x' ? 'width' : 'height'] = `${value}px`;
-    this.indicatorsSize[axis] = value;
+  const { indicatorsSize, indicators } = this;
+  if (indicatorsSize[axis] !== value) {
+    indicators[axis].style[axis === 'x' ? 'width' : 'height'] = `${value}px`;
+    indicatorsSize[axis] = value;
   }
 };
 
 DOMScroller.prototype.reflow = function reflow() {
-  if (this.scrollbars) {
-    this.contentSize.x = this.content.offsetWidth;
-    this.contentSize.y = this.content.offsetHeight;
-    this.clientSize.x = this.container.clientWidth;
-    this.clientSize.y = this.container.clientHeight;
-    if (this.scrollbars.x) {
-      this.scrollbarsSize.x = this.scrollbars.x.offsetWidth;
+  const {
+    container, content,
+    scrollbarsSize, contentSize,
+    scrollbars, clientSize,
+  } = this;
+  if (scrollbars) {
+    contentSize.x = content.offsetWidth;
+    contentSize.y = content.offsetHeight;
+    clientSize.x = container.clientWidth;
+    clientSize.y = container.clientHeight;
+    if (scrollbars.x) {
+      scrollbarsSize.x = scrollbars.x.offsetWidth;
     }
-    if (this.scrollbars.y) {
-      this.scrollbarsSize.y = this.scrollbars.y.offsetHeight;
+    if (scrollbars.y) {
+      scrollbarsSize.y = scrollbars.y.offsetHeight;
     }
   }
   // set the right scroller dimensions
   this.scroller.setDimensions(
-    this.container.clientWidth, this.container.clientHeight,
-    this.content.offsetWidth, this.content.offsetHeight
+    container.clientWidth, container.clientHeight,
+    content.offsetWidth, content.offsetHeight
   );
 
   // refresh the position for zooming purposes
-  const rect = this.container.getBoundingClientRect();
-  this.scroller.setPosition(rect.x + this.container.clientLeft, rect.y + this.container.clientTop);
+  const rect = container.getBoundingClientRect();
+  this.scroller.setPosition(rect.x + container.clientLeft, rect.y + container.clientTop);
 };
 
 DOMScroller.prototype.destroy = function destroy() {
   this._destroyed = true;
+  const { container } = this;
   window.removeEventListener('resize', this.onResize, false);
-  this.container.removeEventListener('touchstart', this.onTouchStart, false);
-  this.container.removeEventListener('touchmove', this.onTouchMove, false);
-  this.container.removeEventListener('touchend', this.onTouchEnd, false);
-  this.container.removeEventListener('touchcancel', this.onTouchCancel, false);
-  this.container.removeEventListener('mousedown', this.onMouseDown, false);
+  container.removeEventListener('touchstart', this.onTouchStart, false);
+  container.removeEventListener('touchmove', this.onTouchMove, false);
+  container.removeEventListener('touchend', this.onTouchEnd, false);
+  container.removeEventListener('touchcancel', this.onTouchCancel, false);
+  container.removeEventListener('mousedown', this.onMouseDown, false);
   document.removeEventListener('mousemove', this.onMouseMove, false);
   document.removeEventListener('mouseup', this.onMouseUp, false);
-  this.container.removeEventListener('mousewheel', this.onMouseWheel, false);
+  container.removeEventListener('mousewheel', this.onMouseWheel, false);
 };
 
 DOMScroller.prototype.bindEvents = function bindEvents() {
-  const that = this;
-
   // reflow handling
   window.addEventListener('resize', this.onResize = () => {
-    that.reflow();
+    this.reflow();
   }, false);
 
   let lockMouse = false;
   let releaseLockTimer;
 
+  const { container } = this;
 
-  this.container.addEventListener('touchstart', this.onTouchStart = (e) => {
+  container.addEventListener('touchstart', this.onTouchStart = (e) => {
     lockMouse = true;
     if (releaseLockTimer) {
       clearTimeout(releaseLockTimer);
@@ -226,45 +247,51 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
     }
     this.clearScrollbarTimer();
     // reflow since the container may have changed
-    that.reflow();
-    that.scroller.doTouchStart(e.touches, e.timeStamp);
-  }, false);
+    this.reflow();
+    this.scroller.doTouchStart(e.touches, e.timeStamp);
+  }, willNotPreventDefault);
 
-  this.container.addEventListener('touchmove', this.onTouchMove = (e) => {
-    if (this.options.preventDefaultOnTouchMove !== false) {
+  const { preventDefaultOnTouchMove } = this.options;
+
+  if (preventDefaultOnTouchMove) {
+    container.addEventListener('touchmove', this.onTouchMove = (e) => {
       e.preventDefault();
-    }
-    that.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-  }, false);
+      this.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+    }, willPreventDefault);
+  } else {
+    container.addEventListener('touchmove', this.onTouchMove = (e) => {
+      this.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+    }, willNotPreventDefault);
+  }
 
-  this.container.addEventListener('touchend', this.onTouchEnd = (e) => {
-    that.scroller.doTouchEnd(e.timeStamp);
+  container.addEventListener('touchend', this.onTouchEnd = (e) => {
+    this.scroller.doTouchEnd(e.timeStamp);
     releaseLockTimer = setTimeout(() => {
       lockMouse = false;
     }, 300);
-  }, false);
+  }, willNotPreventDefault);
 
-  this.container.addEventListener('touchcancel', this.onTouchCancel = (e) => {
-    that.scroller.doTouchEnd(e.timeStamp);
+  container.addEventListener('touchcancel', this.onTouchCancel = (e) => {
+    this.scroller.doTouchEnd(e.timeStamp);
     releaseLockTimer = setTimeout(() => {
       lockMouse = false;
     }, 300);
-  }, false);
+  }, willNotPreventDefault);
 
   this.onMouseUp = (e) => {
-    that.scroller.doTouchEnd(e.timeStamp);
+    this.scroller.doTouchEnd(e.timeStamp);
     document.removeEventListener('mousemove', this.onMouseMove, false);
     document.removeEventListener('mouseup', this.onMouseUp, false);
   };
 
   this.onMouseMove = (e) => {
-    that.scroller.doTouchMove([{
+    this.scroller.doTouchMove([{
       pageX: e.pageX,
       pageY: e.pageY,
     }], e.timeStamp);
   };
 
-  this.container.addEventListener('mousedown', this.onMouseDown = (e) => {
+  container.addEventListener('mousedown', this.onMouseDown = (e) => {
     if (
       lockMouse ||
       e.target.tagName.match(/input|textarea|select/i) ||
@@ -273,20 +300,20 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
       return;
     }
     this.clearScrollbarTimer();
-    that.scroller.doTouchStart([{
+    this.scroller.doTouchStart([{
       pageX: e.pageX,
       pageY: e.pageY,
     }], e.timeStamp);
     // reflow since the container may have changed
-    that.reflow();
+    this.reflow();
     e.preventDefault();
     document.addEventListener('mousemove', this.onMouseMove, false);
     document.addEventListener('mouseup', this.onMouseUp, false);
   }, false);
 
-  this.container.addEventListener('mousewheel', this.onMouseWheel = (e) => {
-    if (that.options.zooming) {
-      that.scroller.doMouseZoom(e.wheelDelta, e.timeStamp, e.pageX, e.pageY);
+  container.addEventListener('mousewheel', this.onMouseWheel = (e) => {
+    if (this.options.zooming) {
+      this.scroller.doMouseZoom(e.wheelDelta, e.timeStamp, e.pageX, e.pageY);
       e.preventDefault();
     }
   }, false);
