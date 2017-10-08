@@ -17,7 +17,6 @@ import Animate from './Animate';
 
 var Scroller;
 
-
 var NOOP = function () {
 };
 
