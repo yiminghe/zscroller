@@ -1,7 +1,11 @@
 import Scroller from './Scroller';
 
 const MIN_INDICATOR_SIZE = 8;
-const win = window;
+let win = typeof window !== 'undefined' ? window : undefined;
+
+if (!win) {
+  win = typeof global !== 'undefined' ? global : {};
+}
 
 function setTransform(nodeStyle, value) {
   nodeStyle.transform = value;
