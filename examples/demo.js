@@ -3,9 +3,11 @@ import ReactDOM from 'react-dom';
 import ZScroller from 'zscroller';
 import 'zscroller/assets/index.less';
 
+let zscroller;
+
 function start(e) {
   e.currentTarget.disabled = true;
-  const zscroller = new ZScroller(document.getElementById('root'), {
+  zscroller = new ZScroller(document.getElementById('root'), {
     scrollbars: true,
     scrollingX: document.getElementById('scrollingX').checked,
     scrollingY: document.getElementById('scrollingY').checked,
@@ -14,6 +16,12 @@ function start(e) {
       console.log(zscroller.scroller.getValues());
     },
   });
+}
+
+function destroy() {
+  if (zscroller) {
+    zscroller.destroy();
+  }
 }
 
 ReactDOM.render(
@@ -25,6 +33,7 @@ ReactDOM.render(
     scrollingY: <input type="checkbox" id="scrollingY" defaultChecked/>
     <br />
     <button id="start" onClick={start}>start</button>
+    <button id="destroy" onClick={destroy}>destroy</button>
     <div
       style={{
         width: 500,
