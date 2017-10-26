@@ -14,6 +14,9 @@ function setTransformOrigin(nodeStyle, value) {
   nodeStyle.MozTransformOrigin = value;
 }
 
+const isWebView = typeof navigator !== 'undefined' &&
+  /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+
 function DOMScroller(content, options = {}) {
   let scrollbars;
   let indicators;
@@ -235,6 +238,11 @@ DOMScroller.prototype.bindEvents = function bindEvents() {
       e.preventDefault();
     }
     that.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+    // https://github.com/ant-design/ant-design-mobile/issues/573#issuecomment-339560829
+    // iOS UIWebView issue, It seems no problem in WKWebView
+    if (isWebView && e.changedTouches[0].clientY < 0) {
+      this.onTouchEnd(new Event('touchend') || e);
+    }
   }, false);
 
   this.container.addEventListener('touchend', this.onTouchEnd = (e) => {
