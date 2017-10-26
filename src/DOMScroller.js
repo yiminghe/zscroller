@@ -31,6 +31,17 @@ try {
   // empty
 }
 
+const isWebView = typeof navigator !== 'undefined' &&
+  /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
+
+function iOSWebViewFix(e, touchendFn) {
+  // https://github.com/ant-design/ant-design-mobile/issues/573#issuecomment-339560829
+  // iOS UIWebView issue, It seems no problem in WKWebView
+  if (isWebView && e.changedTouches[0].clientY < 0) {
+    touchendFn(new Event('touchend') || e);
+  }
+}
+
 const willPreventDefault = supportsPassive ? { passive: false } : false;
 const willNotPreventDefault = supportsPassive ? { passive: true } : false;
 
@@ -274,24 +285,25 @@ DOMScroller.prototype = {
     }, willNotPreventDefault);
 
     const { preventDefaultOnTouchMove, zooming } = this.options;
-
-    if (preventDefaultOnTouchMove !== false) {
-      this.bindEvent(container, 'touchmove', (e) => {
-        e.preventDefault();
-        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-      }, willPreventDefault);
-    } else {
-      this.bindEvent(container, 'touchmove', (e) => {
-        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-      }, willNotPreventDefault);
-    }
-
     const onTouchEnd = (e) => {
       scroller.doTouchEnd(e.timeStamp);
       releaseLockTimer = setTimeout(() => {
         lockMouse = false;
       }, 300);
     };
+
+    if (preventDefaultOnTouchMove !== false) {
+      this.bindEvent(container, 'touchmove', (e) => {
+        e.preventDefault();
+        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+        iOSWebViewFix(e, onTouchEnd);
+      }, willPreventDefault);
+    } else {
+      this.bindEvent(container, 'touchmove', (e) => {
+        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+        iOSWebViewFix(e, onTouchEnd);
+      }, willNotPreventDefault);
+    }
 
     this.bindEvent(container, 'touchend', onTouchEnd, willNotPreventDefault);
     this.bindEvent(container, 'touchcancel', onTouchEnd, willNotPreventDefault);
