@@ -267,7 +267,6 @@ DOMScroller.prototype = {
         this.disabled) {
         return;
       }
-      e.preventDefault();
       this.clearScrollbarTimer();
       // reflow since the container may have changed
       this.reflow();
@@ -276,7 +275,7 @@ DOMScroller.prototype = {
 
     const { preventDefaultOnTouchMove, zooming } = this.options;
 
-    if (preventDefaultOnTouchMove) {
+    if (preventDefaultOnTouchMove !== false) {
       this.bindEvent(container, 'touchmove', (e) => {
         e.preventDefault();
         scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
