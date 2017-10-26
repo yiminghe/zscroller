@@ -267,6 +267,7 @@ DOMScroller.prototype = {
         this.disabled) {
         return;
       }
+      e.preventDefault();
       this.clearScrollbarTimer();
       // reflow since the container may have changed
       this.reflow();
