@@ -12,18 +12,16 @@
  * License: MIT + Apache (V2)
  */
 
-
 import Animate from './Animate';
 
 var Scroller;
 
-var NOOP = function () {
-};
+var NOOP = function NOOP() {};
 
 /**
  * A pure logic 'component' for 'virtual' scrolling/zooming.
  */
-Scroller = function (callback, options) {
+Scroller = function Scroller(callback, options) {
 
   this.__callback = callback;
 
@@ -77,15 +75,13 @@ Scroller = function (callback, options) {
     penetrationAcceleration: 0.08,
 
     /** 设置滚动条顶部最小距离限制 **/
-    scrollTopLimit:null,
+    scrollTopLimit: null
   };
 
   for (var key in options) {
     this.options[key] = options[key];
   }
-
 };
-
 
 // Easing Equations (c) 2003 Robert Penner, all rights reserved.
 // Open source under the BSD License.
@@ -93,21 +89,20 @@ Scroller = function (callback, options) {
 /**
  * @param pos {Number} position between 0 (start of effect) and 1 (end of effect)
  **/
-var easeOutCubic = function (pos) {
-  return (Math.pow((pos - 1), 3) + 1);
+var easeOutCubic = function easeOutCubic(pos) {
+  return Math.pow(pos - 1, 3) + 1;
 };
 
 /**
  * @param pos {Number} position between 0 (start of effect) and 1 (end of effect)
  **/
-var easeInOutCubic = function (pos) {
+var easeInOutCubic = function easeInOutCubic(pos) {
   if ((pos /= 0.5) < 1) {
     return 0.5 * Math.pow(pos, 3);
   }
 
-  return 0.5 * (Math.pow((pos - 2), 3) + 2);
+  return 0.5 * (Math.pow(pos - 2, 3) + 2);
 };
-
 
 var members = {
 
@@ -149,7 +144,6 @@ var members = {
    * {Boolean} Smoothly animating the currently configured change
    */
   __isAnimating: false,
-
 
   /*
    ---------------------------------------------------------------------------
@@ -220,7 +214,6 @@ var members = {
   /* {Number} Scheduled zoom level (final scale when animating) */
   __scheduledZoom: 0,
 
-
   /*
    ---------------------------------------------------------------------------
    INTERNAL FIELDS :: LAST POSITIONS
@@ -238,7 +231,6 @@ var members = {
 
   /** {Array} List of positions, uses three indexes for each state: left, top, timestamp */
   __positions: null,
-
 
   /*
    ---------------------------------------------------------------------------
@@ -264,7 +256,6 @@ var members = {
   /** {Number} Current factor to modify vertical scroll position with on every step */
   __decelerationVelocityY: null,
 
-
   /*
    ---------------------------------------------------------------------------
    PUBLIC API
@@ -281,7 +272,7 @@ var members = {
    * @param contentWidth {Integer ? null} Outer width of inner element
    * @param contentHeight {Integer ? null} Outer height of inner element
    */
-  setDimensions: function (clientWidth, clientHeight, contentWidth, contentHeight) {
+  setDimensions: function setDimensions(clientWidth, clientHeight, contentWidth, contentHeight) {
 
     var self = this;
 
@@ -307,9 +298,7 @@ var members = {
 
     // Refresh scroll position
     self.scrollTo(self.__scrollLeft, self.__scrollTop, true);
-
   },
-
 
   /**
    * Sets the client coordinates in relation to the document.
@@ -317,15 +306,13 @@ var members = {
    * @param left {Integer ? 0} Left position of outer element
    * @param top {Integer ? 0} Top position of outer element
    */
-  setPosition: function (left, top) {
+  setPosition: function setPosition(left, top) {
 
     var self = this;
 
     self.__clientLeft = left || 0;
     self.__clientTop = top || 0;
-
   },
-
 
   /**
    * Configures the snapping (when snapping is active)
@@ -333,15 +320,13 @@ var members = {
    * @param width {Integer} Snapping width
    * @param height {Integer} Snapping height
    */
-  setSnapSize: function (width, height) {
+  setSnapSize: function setSnapSize(width, height) {
 
     var self = this;
 
     self.__snapWidth = width;
     self.__snapHeight = height;
-
   },
-
 
   /**
    * Activates pull-to-refresh. A special zone on the top of the list to start a list refresh whenever
@@ -353,7 +338,7 @@ var members = {
    * @param deactivateCallback {Function} Callback to execute on deactivation. This is for signalling the user about the refresh being cancelled.
    * @param startCallback {Function} Callback to execute to start the real async refresh action. Call {@link #finishPullToRefresh} after finish of refresh.
    */
-  activatePullToRefresh: function (height, activateCallback, deactivateCallback, startCallback) {
+  activatePullToRefresh: function activatePullToRefresh(height, activateCallback, deactivateCallback, startCallback) {
 
     var self = this;
 
@@ -361,14 +346,12 @@ var members = {
     self.__refreshActivate = activateCallback;
     self.__refreshDeactivate = deactivateCallback;
     self.__refreshStart = startCallback;
-
   },
-
 
   /**
    * Starts pull-to-refresh manually.
    */
-  triggerPullToRefresh: function () {
+  triggerPullToRefresh: function triggerPullToRefresh() {
     // Use publish instead of scrollTo to allow scrolling to out of boundary position
     // We don't need to normalize scrollLeft, zoomLevel, etc. here because we only y-scrolling when pull-to-refresh is enabled
     this.__publish(this.__scrollLeft, -this.__refreshHeight, this.__zoomLevel, true);
@@ -378,11 +361,10 @@ var members = {
     }
   },
 
-
   /**
    * Signalizes that pull-to-refresh is finished.
    */
-  finishPullToRefresh: function () {
+  finishPullToRefresh: function finishPullToRefresh() {
 
     var self = this;
 
@@ -392,16 +374,14 @@ var members = {
     }
 
     self.scrollTo(self.__scrollLeft, self.__scrollTop, true);
-
   },
-
 
   /**
    * Returns the scroll position and zooming values
    *
    * @return {Map} `left` and `top` scroll position and `zoom` level
    */
-  getValues: function () {
+  getValues: function getValues() {
 
     var self = this;
 
@@ -410,16 +390,14 @@ var members = {
       top: self.__scrollTop,
       zoom: self.__zoomLevel
     };
-
   },
-
 
   /**
    * Returns the maximum scroll values
    *
    * @return {Map} `left` and `top` maximum scroll values
    */
-  getScrollMax: function () {
+  getScrollMax: function getScrollMax() {
 
     var self = this;
 
@@ -427,9 +405,7 @@ var members = {
       left: self.__maxScrollLeft,
       top: self.__maxScrollTop
     };
-
   },
-
 
   /**
    * Zooms to the given level. Supports optional animation. Zooms
@@ -441,7 +417,7 @@ var members = {
    * @param originTop {Number ? null} Zoom in at given top coordinate
    * @param callback {Function ? null} A callback that gets fired when the zoom is complete.
    */
-  zoomTo: function (level, animate, originLeft, originTop, callback) {
+  zoomTo: function zoomTo(level, animate, originLeft, originTop, callback) {
 
     var self = this;
 
@@ -478,8 +454,8 @@ var members = {
     self.__computeScrollMax(level);
 
     // Recompute left and top coordinates based on new zoom level
-    var left = ((originLeft + self.__scrollLeft) * level / oldLevel) - originLeft;
-    var top = ((originTop + self.__scrollTop) * level / oldLevel) - originTop;
+    var left = (originLeft + self.__scrollLeft) * level / oldLevel - originLeft;
+    var top = (originTop + self.__scrollTop) * level / oldLevel - originTop;
 
     // Limit x-axis
     if (left > self.__maxScrollLeft) {
@@ -497,9 +473,7 @@ var members = {
 
     // Push values out
     self.__publish(left, top, level, animate);
-
   },
-
 
   /**
    * Zooms the content by the given factor.
@@ -510,14 +484,12 @@ var members = {
    * @param originTop {Number ? 0} Zoom in at given top coordinate
    * @param callback {Function ? null} A callback that gets fired when the zoom is complete.
    */
-  zoomBy: function (factor, animate, originLeft, originTop, callback) {
+  zoomBy: function zoomBy(factor, animate, originLeft, originTop, callback) {
 
     var self = this;
 
     self.zoomTo(self.__zoomLevel * factor, animate, originLeft, originTop, callback);
-
   },
-
 
   /**
    * Scrolls to the given position. Respect limitations and snapping automatically.
@@ -527,7 +499,7 @@ var members = {
    * @param animate {Boolean?false} Whether the scrolling should happen using an animation
    * @param zoom {Number?null} Zoom level to go to
    */
-  scrollTo: function (left, top, animate, zoom, callback) {
+  scrollTo: function scrollTo(left, top, animate, zoom, callback) {
 
     var self = this;
 
@@ -549,18 +521,15 @@ var members = {
 
       // Recompute maximum values while temporary tweaking maximum scroll ranges
       self.__computeScrollMax(zoom);
-
     } else {
 
       // Keep zoom when not defined
       zoom = self.__zoomLevel;
-
     }
 
     if (!self.options.scrollingX) {
 
       left = self.__scrollLeft;
-
     } else {
 
       if (self.options.paging) {
@@ -568,13 +537,11 @@ var members = {
       } else if (self.options.snapping) {
         left = Math.round(left / self.__snapWidth) * self.__snapWidth;
       }
-
     }
 
     if (!self.options.scrollingY) {
 
       top = self.__scrollTop;
-
     } else {
 
       if (self.options.paging) {
@@ -582,7 +549,6 @@ var members = {
       } else if (self.options.snapping) {
         top = Math.round(top / self.__snapHeight) * self.__snapHeight;
       }
-
     }
 
     // Limit for allowed ranges
@@ -602,9 +568,7 @@ var members = {
         callback();
       }
     }
-
   },
-
 
   /**
    * Scroll by the given offset
@@ -613,7 +577,7 @@ var members = {
    * @param top {Number ? 0} Scroll x-axis by given offset
    * @param animate {Boolean ? false} Whether to animate the given change
    */
-  scrollBy: function (left, top, animate) {
+  scrollBy: function scrollBy(left, top, animate) {
 
     var self = this;
 
@@ -621,9 +585,7 @@ var members = {
     var startTop = self.__isAnimating ? self.__scheduledTop : self.__scrollTop;
 
     self.scrollTo(startLeft + (left || 0), startTop + (top || 0), animate);
-
   },
-
 
   /*
    ---------------------------------------------------------------------------
@@ -634,20 +596,18 @@ var members = {
   /**
    * Mouse wheel handler for zooming support
    */
-  doMouseZoom: function (wheelDelta, timeStamp, pageX, pageY) {
+  doMouseZoom: function doMouseZoom(wheelDelta, timeStamp, pageX, pageY) {
 
     var self = this;
     var change = wheelDelta > 0 ? 0.97 : 1.03;
 
     return self.zoomTo(self.__zoomLevel * change, false, pageX - self.__clientLeft, pageY - self.__clientTop);
-
   },
-
 
   /**
    * Touch start handler for scrolling support
    */
-  doTouchStart: function (touches, timeStamp) {
+  doTouchStart: function doTouchStart(touches, timeStamp) {
 
     // Array-like check is enough here
     if (touches.length == null) {
@@ -726,14 +686,12 @@ var members = {
 
     // Clearing data structure
     self.__positions = [];
-
   },
-
 
   /**
    * Touch move handler for scrolling support
    */
-  doTouchMove: function (touches, timeStamp, scale) {
+  doTouchMove: function doTouchMove(touches, timeStamp, scale) {
 
     // Array-like check is enough here
     if (touches.length == null) {
@@ -753,7 +711,6 @@ var members = {
     if (!self.__isTracking) {
       return;
     }
-
 
     var currentTouchLeft, currentTouchTop;
 
@@ -799,12 +756,11 @@ var members = {
           var currentTouchTopRel = currentTouchTop - self.__clientTop;
 
           // Recompute left and top coordinates based on new zoom level
-          scrollLeft = ((currentTouchLeftRel + scrollLeft) * level / oldLevel) - currentTouchLeftRel;
-          scrollTop = ((currentTouchTopRel + scrollTop) * level / oldLevel) - currentTouchTopRel;
+          scrollLeft = (currentTouchLeftRel + scrollLeft) * level / oldLevel - currentTouchLeftRel;
+          scrollTop = (currentTouchTopRel + scrollTop) * level / oldLevel - currentTouchTopRel;
 
           // Recompute max scroll values
           self.__computeScrollMax(level);
-
         }
       }
 
@@ -818,16 +774,13 @@ var members = {
           // Slow down on the edges
           if (self.options.bouncing) {
 
-            scrollLeft += (moveX / 2 * this.options.speedMultiplier);
-
+            scrollLeft += moveX / 2 * this.options.speedMultiplier;
           } else if (scrollLeft > maxScrollLeft) {
 
             scrollLeft = maxScrollLeft;
-
           } else {
 
             scrollLeft = 0;
-
           }
         }
       }
@@ -843,7 +796,7 @@ var members = {
           // Slow down on the edges
           if (self.options.bouncing) {
 
-            scrollTop += (moveY / 2 * this.options.speedMultiplier);
+            scrollTop += moveY / 2 * this.options.speedMultiplier;
 
             // Support pull-to-refresh (only when only y is scrollable)
             if (!self.__enableScrollX && self.__refreshHeight != null) {
@@ -854,25 +807,20 @@ var members = {
                 if (self.__refreshActivate) {
                   self.__refreshActivate();
                 }
-
               } else if (self.__refreshActive && scrollTop > -self.__refreshHeight) {
 
                 self.__refreshActive = false;
                 if (self.__refreshDeactivate) {
                   self.__refreshDeactivate();
                 }
-
               }
             }
-
           } else if (scrollTop > maxScrollTop) {
 
             scrollTop = maxScrollTop;
-
           } else {
 
             scrollTop = 0;
-
           }
         }
       }
@@ -900,7 +848,7 @@ var members = {
       self.__enableScrollX = self.options.scrollingX && distanceX >= minimumTrackingForScroll;
       self.__enableScrollY = self.options.scrollingY && distanceY >= minimumTrackingForScroll;
 
-      let radian;
+      var radian = void 0;
 
       if (self.options.locking && self.__enableScrollY) {
         radian = radian || Math.atan2(distanceY, distanceX);
@@ -922,7 +870,6 @@ var members = {
       if (self.__isDragging) {
         self.__interruptedAnimation = false;
       }
-
     }
 
     // Update last touch positions and time stamp for next event
@@ -930,14 +877,12 @@ var members = {
     self.__lastTouchTop = currentTouchTop;
     self.__lastTouchMove = timeStamp;
     self.__lastScale = scale;
-
   },
-
 
   /**
    * Touch end handler for scrolling support
    */
-  doTouchEnd: function (timeStamp) {
+  doTouchEnd: function doTouchEnd(timeStamp) {
 
     if (timeStamp instanceof Date) {
       timeStamp = timeStamp.valueOf();
@@ -947,7 +892,7 @@ var members = {
     }
 
     var self = this;
-    if(self.options.onTouchEnd){
+    if (self.options.onTouchEnd) {
       self.options.onTouchEnd();
     }
     // Ignore event when tracking is not enabled (no touchstart event on element)
@@ -968,7 +913,7 @@ var members = {
 
       // Start deceleration
       // Verify that the last move detected was in some relevant time frame
-      if (self.__isSingleTouch && self.options.animating && (timeStamp - self.__lastTouchMove) <= 100) {
+      if (self.__isSingleTouch && self.options.animating && timeStamp - self.__lastTouchMove <= 100) {
 
         // Then figure out what the scroll position was about 100ms ago
         var positions = self.__positions;
@@ -976,7 +921,7 @@ var members = {
         var startPos = endPos;
 
         // Move pointer to position measured 100ms ago
-        for (var i = endPos; i > 0 && positions[i] > (self.__lastTouchMove - 100); i -= 3) {
+        for (var i = endPos; i > 0 && positions[i] > self.__lastTouchMove - 100; i -= 3) {
           startPos = i;
         }
 
@@ -1009,7 +954,7 @@ var members = {
         } else {
           self.options.scrollingComplete();
         }
-      } else if ((timeStamp - self.__lastTouchMove) > 100) {
+      } else if (timeStamp - self.__lastTouchMove > 100) {
         self.options.scrollingComplete();
       }
     }
@@ -1030,7 +975,6 @@ var members = {
         if (self.__refreshStart) {
           self.__refreshStart();
         }
-
       } else {
 
         if (self.__interruptedAnimation || self.__isDragging) {
@@ -1045,7 +989,6 @@ var members = {
           if (self.__refreshDeactivate) {
             self.__refreshDeactivate();
           }
-
         }
       }
     }
@@ -1053,7 +996,6 @@ var members = {
     // Fully cleanup list
     self.__positions.length = 0;
   },
-
 
   /*
    ---------------------------------------------------------------------------
@@ -1068,13 +1010,13 @@ var members = {
    * @param top {Number} Top scroll position
    * @param animate {Boolean?false} Whether animation should be used to move to the new coordinates
    */
-  __publish: function (left, top, zoom, animate) {
+  __publish: function __publish(left, top, zoom, animate) {
 
     var self = this;
 
     /** 滚动顶部距离限制 **/
-    if(self.options.scrollTopLimit !== null){
-      if(top < self.options.scrollTopLimit){
+    if (self.options.scrollTopLimit !== null) {
+      if (top < self.options.scrollTopLimit) {
         top = self.options.scrollTopLimit;
       }
     }
@@ -1100,27 +1042,26 @@ var members = {
       var diffTop = top - oldTop;
       var diffZoom = zoom - oldZoom;
 
-      var step = function (percent, now, render) {
+      var step = function step(percent, now, render) {
 
         if (render) {
 
-          self.__scrollLeft = oldLeft + (diffLeft * percent);
-          self.__scrollTop = oldTop + (diffTop * percent);
-          self.__zoomLevel = oldZoom + (diffZoom * percent);
+          self.__scrollLeft = oldLeft + diffLeft * percent;
+          self.__scrollTop = oldTop + diffTop * percent;
+          self.__zoomLevel = oldZoom + diffZoom * percent;
 
           // Push values out
           if (self.__callback) {
             self.__callback(self.__scrollLeft, self.__scrollTop, self.__zoomLevel);
           }
-
         }
       };
 
-      var verify = function (id) {
+      var verify = function verify(id) {
         return self.__isAnimating === id;
       };
 
-      var completed = function (renderedFramesPerSecond, animationId, wasFinished) {
+      var completed = function completed(renderedFramesPerSecond, animationId, wasFinished) {
         if (animationId === self.__isAnimating) {
           self.__isAnimating = false;
         }
@@ -1140,7 +1081,6 @@ var members = {
 
       // When continuing based on previous animation we choose an ease-out animation instead of ease-in-out
       self.__isAnimating = Animate.start(step, verify, completed, self.options.animationDuration, wasAnimating ? easeOutCubic : easeInOutCubic);
-
     } else {
 
       self.__scheduledLeft = self.__scrollLeft = left;
@@ -1163,11 +1103,10 @@ var members = {
     }
   },
 
-
   /**
    * Recomputes scroll minimum values based on client dimensions and content dimensions.
    */
-  __computeScrollMax: function (zoomLevel) {
+  __computeScrollMax: function __computeScrollMax(zoomLevel) {
 
     var self = this;
 
@@ -1175,11 +1114,9 @@ var members = {
       zoomLevel = self.__zoomLevel;
     }
 
-    self.__maxScrollLeft = Math.max((self.__contentWidth * zoomLevel) - self.__clientWidth, 0);
-    self.__maxScrollTop = Math.max((self.__contentHeight * zoomLevel) - self.__clientHeight, 0);
-
+    self.__maxScrollLeft = Math.max(self.__contentWidth * zoomLevel - self.__clientWidth, 0);
+    self.__maxScrollTop = Math.max(self.__contentHeight * zoomLevel - self.__clientHeight, 0);
   },
-
 
   /*
    ---------------------------------------------------------------------------
@@ -1191,7 +1128,7 @@ var members = {
    * Called when a touch sequence end and the speed of the finger was high enough
    * to switch into deceleration mode.
    */
-  __startDeceleration: function (timeStamp) {
+  __startDeceleration: function __startDeceleration(timeStamp) {
 
     var self = this;
 
@@ -1208,18 +1145,16 @@ var members = {
       self.__minDecelerationScrollTop = Math.floor(scrollTop / clientHeight) * clientHeight;
       self.__maxDecelerationScrollLeft = Math.ceil(scrollLeft / clientWidth) * clientWidth;
       self.__maxDecelerationScrollTop = Math.ceil(scrollTop / clientHeight) * clientHeight;
-
     } else {
 
       self.__minDecelerationScrollLeft = 0;
       self.__minDecelerationScrollTop = 0;
       self.__maxDecelerationScrollLeft = self.__maxScrollLeft;
       self.__maxDecelerationScrollTop = self.__maxScrollTop;
-
     }
 
     // Wrap class method
-    var step = function (percent, now, render) {
+    var step = function step(percent, now, render) {
       self.__stepThroughDeceleration(render);
     };
 
@@ -1233,7 +1168,7 @@ var members = {
 
     // Detect whether it's still worth to continue animating steps
     // If we are already slow enough to not being user perceivable anymore, we stop the whole process here.
-    var verify = function () {
+    var verify = function verify() {
       var shouldContinue = Math.abs(self.__decelerationVelocityX) >= minVelocityToKeepDecelerating || Math.abs(self.__decelerationVelocityY) >= minVelocityToKeepDecelerating;
       if (!shouldContinue) {
         self.__didDecelerationComplete = true;
@@ -1241,7 +1176,7 @@ var members = {
       return shouldContinue;
     };
 
-    var completed = function (renderedFramesPerSecond, animationId, wasFinished) {
+    var completed = function completed(renderedFramesPerSecond, animationId, wasFinished) {
       self.__isDecelerating = false;
       // Animate to grid when snapping is active, otherwise just fix out-of-boundary positions
       // fixed by yiminghe, in case call scrollingComplete twice
@@ -1250,19 +1185,16 @@ var members = {
 
     // Start animation and switch on flag
     self.__isDecelerating = Animate.start(step, verify, completed);
-
   },
-
 
   /**
    * Called on every step of the animation
    *
    * @param inMemory {Boolean?false} Whether to not render the current step, but keep it in memory only. Used internally only!
    */
-  __stepThroughDeceleration: function (render) {
+  __stepThroughDeceleration: function __stepThroughDeceleration(render) {
 
     var self = this;
-
 
     //
     // COMPUTE NEXT SCROLL POSITION
@@ -1271,7 +1203,6 @@ var members = {
     // Add deceleration to scroll position
     var scrollLeft = self.__scrollLeft + self.__decelerationVelocityX;
     var scrollTop = self.__scrollTop + self.__decelerationVelocityY;
-
 
     //
     // HARD LIMIT SCROLL POSITION FOR NON BOUNCING MODE
@@ -1290,7 +1221,6 @@ var members = {
         scrollTop = scrollTopFixed;
         self.__decelerationVelocityY = 0;
       }
-
     }
 
     //
@@ -1300,14 +1230,11 @@ var members = {
     if (render) {
 
       self.__publish(scrollLeft, scrollTop, self.__zoomLevel);
-
     } else {
 
       self.__scrollLeft = scrollLeft;
       self.__scrollTop = scrollTop;
-
     }
-
 
     //
     // SLOW DOWN
@@ -1323,9 +1250,7 @@ var members = {
 
       self.__decelerationVelocityX *= frictionFactor;
       self.__decelerationVelocityY *= frictionFactor;
-
     }
-
 
     //
     // BOUNCING SUPPORT

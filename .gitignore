@@ -19,11 +19,10 @@ Thumbs.db
 *.pyo
 node_modules
 .cache
-*.css
 build
 lib
 coverage
 *.map
 !tests/index.js
 yarn.lock
-/es/
+/examples/
