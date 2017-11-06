@@ -22,8 +22,6 @@
  * rendering. This eases a lot of cases where it might be pretty complex to break down a state
  * based on the pure time difference.
  */
-import raf from 'raf';
-
 var desiredFrames = 60;
 var millisecondsPerSecond = 1000;
 var running = {};
@@ -33,6 +31,38 @@ var win = typeof window !== 'undefined' ? window : undefined;
 if (!win) {
   win = typeof global !== 'undefined' ? global : {};
 }
+
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+(function () {
+  let lastTime = 0;
+  const vendors = ['ms', 'moz', 'webkit', 'o'];
+  for (let x = 0; x < vendors.length && !win.requestAnimationFrame; ++x) {
+    win.requestAnimationFrame = win[vendors[x] + 'RequestAnimationFrame'];
+    win.cancelAnimationFrame = win[vendors[x] + 'CancelAnimationFrame'] || win[vendors[x] + 'CancelRequestAnimationFrame']
+  }
+
+  if (!win.requestAnimationFrame) {
+    win.requestAnimationFrame = (callback) => {
+      const currTime = new Date().getTime();
+      const timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      const id = win.setTimeout(function () {
+          callback(currTime + timeToCall)
+        },
+        timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+  }
+  if (!win.cancelAnimationFrame) {
+    win.cancelAnimationFrame = (id) => {
+      clearTimeout(id)
+    };
+  }
+}());
 
 var Animate = {
   /**
@@ -136,7 +166,7 @@ var Animate = {
         completedCallback && completedCallback(desiredFrames - (dropCounter / ((now - start) / millisecondsPerSecond)), id, percent === 1 || duration == null);
       } else if (render) {
         lastFrame = now;
-        raf(step);
+        win.requestAnimationFrame(step);
       }
     };
 
@@ -144,7 +174,7 @@ var Animate = {
     running[id] = true;
 
     // Init first step
-    raf(step);
+    win.requestAnimationFrame(step);
 
     // Return unique animation ID
     return id;
