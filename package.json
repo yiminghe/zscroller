@@ -27,11 +27,11 @@
     "port": 8007
   },
   "scripts": {
-    "compile": "rc-tools run compile --babel-runtime",
+    "compile": "rc-tools run compile",
     "build": "rc-tools run build",
     "gh-pages": "rc-tools run gh-pages",
     "start": "rc-tools run server",
-    "pub": "rc-tools run pub --babel-runtime",
+    "pub": "rc-tools run pub",
     "lint": "rc-tools run lint"
   },
   "devDependencies": {
