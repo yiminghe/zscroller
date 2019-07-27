@@ -26,7 +26,7 @@ dom scroller based on [zynga scroller](https://zynga.github.io/scroller/)
 ## Usage
 
 ```
-import ZScroller from 'zscroller/lib/Index';
+import ZScroller from 'zscroller';
 var domScroller = new ZScroller(contentNode, options);
 ```
 
