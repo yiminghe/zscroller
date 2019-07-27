@@ -48,7 +48,6 @@
     "@storybook/react": "^5.1.9",
     "@storybook/storybook-deployer": "^2.8.1",
     "babel-loader": "^8.0.6",
-    "babel-preset-env": "^1.7.0",
     "lint-staged": "^9.2.1",
     "pre-commit": "1.x",
     "prettier": "^1.18.2",
