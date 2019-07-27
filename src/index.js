@@ -1,10 +1,10 @@
-import Scroller from './Scroller';
+import Scroller from "./Scroller";
 
 const MIN_INDICATOR_SIZE = 8;
-let win = typeof window !== 'undefined' ? window : undefined;
+let win = typeof window !== "undefined" ? window : undefined;
 
 if (!win) {
-  win = typeof global !== 'undefined' ? global : {};
+  win = typeof global !== "undefined" ? global : {};
 }
 
 function setTransform(nodeStyle, value) {
@@ -21,24 +21,25 @@ function setTransformOrigin(nodeStyle, value) {
 
 let supportsPassive = false;
 try {
-  const opts = Object.defineProperty({}, 'passive', {
+  const opts = Object.defineProperty({}, "passive", {
     get() {
       supportsPassive = true;
-    },
+    }
   });
-  win.addEventListener('test', null, opts);
+  win.addEventListener("test", null, opts);
 } catch (e) {
   // empty
 }
 
-const isWebView = typeof navigator !== 'undefined' &&
+const isWebView =
+  typeof navigator !== "undefined" &&
   /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
 
 function iOSWebViewFix(e, touchendFn) {
   // https://github.com/ant-design/ant-design-mobile/issues/573#issuecomment-339560829
   // iOS UIWebView issue, It seems no problem in WKWebView
   if (isWebView && e.changedTouches[0].clientY < 0) {
-    touchendFn(new Event('touchend') || e);
+    touchendFn(new Event("touchend") || e);
   }
 }
 
@@ -52,7 +53,7 @@ function addEventListener(target, type, fn, options) {
   };
 }
 
-function DOMScroller(content, options = {}) {
+function ZScroller(content, options = {}) {
   let scrollbars;
   let indicators;
   let indicatorsSize;
@@ -63,7 +64,7 @@ function DOMScroller(content, options = {}) {
   let clientSize;
 
   this.content = content;
-  const container = this.container = content.parentNode;
+  const container = (this.container = content.parentNode);
   this.options = {
     ...options,
     scrollingComplete: () => {
@@ -76,14 +77,14 @@ function DOMScroller(content, options = {}) {
           options.scrollingComplete();
         }
         if (scrollbars) {
-          ['x', 'y'].forEach((k) => {
+          ["x", "y"].forEach(k => {
             if (scrollbars[k]) {
               this.setScrollbarOpacity(k, 0);
             }
           });
         }
       }, 0);
-    },
+    }
   };
 
   if (this.options.scrollbars) {
@@ -96,12 +97,12 @@ function DOMScroller(content, options = {}) {
     contentSize = this.contentSize = {};
     clientSize = this.clientSize = {};
 
-    ['x', 'y'].forEach((k) => {
-      const optionName = k === 'x' ? 'scrollingX' : 'scrollingY';
+    ["x", "y"].forEach(k => {
+      const optionName = k === "x" ? "scrollingX" : "scrollingY";
       if (this.options[optionName] !== false) {
-        scrollbars[k] = document.createElement('div');
+        scrollbars[k] = document.createElement("div");
         scrollbars[k].className = `zscroller-scrollbar-${k}`;
-        indicators[k] = document.createElement('div');
+        indicators[k] = document.createElement("div");
         indicators[k].className = `zscroller-indicator-${k}`;
         scrollbars[k].appendChild(indicators[k]);
         indicatorsSize[k] = -1;
@@ -120,29 +121,35 @@ function DOMScroller(content, options = {}) {
     if (!init && options.onScroll) {
       options.onScroll();
     }
-    setTransform(contentStyle, `translate3d(${-left}px,${-top}px,0) scale(${zoom})`);
+    setTransform(
+      contentStyle,
+      `translate3d(${-left}px,${-top}px,0) scale(${zoom})`
+    );
     if (scrollbars) {
-      ['x', 'y'].forEach((k) => {
+      ["x", "y"].forEach(k => {
         if (scrollbars[k]) {
-          const pos = k === 'x' ? left : top;
+          const pos = k === "x" ? left : top;
           if (clientSize[k] >= contentSize[k]) {
             this.setScrollbarOpacity(k, 0);
           } else {
             if (!init) {
               this.setScrollbarOpacity(k, 1);
             }
-            const normalIndicatorSize = clientSize[k] / contentSize[k] * scrollbarsSize[k];
+            const normalIndicatorSize =
+              (clientSize[k] / contentSize[k]) * scrollbarsSize[k];
             let size = normalIndicatorSize;
             let indicatorPos;
             if (pos < 0) {
               size = Math.max(normalIndicatorSize + pos, MIN_INDICATOR_SIZE);
               indicatorPos = 0;
-            } else if (pos > (contentSize[k] - clientSize[k])) {
-              size = Math.max(normalIndicatorSize + contentSize[k] - clientSize[k] - pos,
-                MIN_INDICATOR_SIZE);
+            } else if (pos > contentSize[k] - clientSize[k]) {
+              size = Math.max(
+                normalIndicatorSize + contentSize[k] - clientSize[k] - pos,
+                MIN_INDICATOR_SIZE
+              );
               indicatorPos = scrollbarsSize[k] - size;
             } else {
-              indicatorPos = pos / contentSize[k] * scrollbarsSize[k];
+              indicatorPos = (pos / contentSize[k]) * scrollbarsSize[k];
             }
             this.setIndicatorSize(k, size);
             this.setIndicatorPos(k, indicatorPos);
@@ -157,14 +164,14 @@ function DOMScroller(content, options = {}) {
   this.bindEvents();
 
   // the content element needs a correct transform origin for zooming
-  setTransformOrigin(content.style, 'left top');
+  setTransformOrigin(content.style, "left top");
 
   // reflow for the first time
   this.reflow();
 }
 
-DOMScroller.prototype = {
-  constructor: DOMScroller,
+ZScroller.prototype = {
+  constructor: ZScroller,
   setDisabled(disabled) {
     this.disabled = disabled;
   },
@@ -183,7 +190,7 @@ DOMScroller.prototype = {
   setIndicatorPos(axis, value) {
     const { indicatorsPos, indicators } = this;
     if (indicatorsPos[axis] !== value) {
-      if (axis === 'x') {
+      if (axis === "x") {
         setTransform(indicators[axis].style, `translate3d(${value}px,0,0)`);
       } else {
         setTransform(indicators[axis].style, `translate3d(0, ${value}px,0)`);
@@ -194,16 +201,19 @@ DOMScroller.prototype = {
   setIndicatorSize(axis, value) {
     const { indicatorsSize, indicators } = this;
     if (indicatorsSize[axis] !== value) {
-      indicators[axis].style[axis === 'x' ? 'width' : 'height'] = `${value}px`;
+      indicators[axis].style[axis === "x" ? "width" : "height"] = `${value}px`;
       indicatorsSize[axis] = value;
     }
   },
   reflow() {
     const {
-      container, content,
-      scrollbarsSize, contentSize,
-      scrollbars, clientSize,
-      scroller,
+      container,
+      content,
+      scrollbarsSize,
+      contentSize,
+      scrollbars,
+      clientSize,
+      scroller
     } = this;
     if (scrollbars) {
       contentSize.x = content.offsetWidth;
@@ -219,13 +229,18 @@ DOMScroller.prototype = {
     }
     // set the right scroller dimensions
     scroller.setDimensions(
-      container.clientWidth, container.clientHeight,
-      content.offsetWidth, content.offsetHeight
+      container.clientWidth,
+      container.clientHeight,
+      content.offsetWidth,
+      content.offsetHeight
     );
 
     // refresh the position for zooming purposes
     const rect = container.getBoundingClientRect();
-    scroller.setPosition(rect.x + container.clientLeft, rect.y + container.clientTop);
+    scroller.setPosition(
+      rect.x + container.clientLeft,
+      rect.y + container.clientTop
+    );
   },
   destroy() {
     this._destroyed = true;
@@ -239,7 +254,7 @@ DOMScroller.prototype = {
         delete eventHandlers[type];
       }
     } else {
-      Object.keys(eventHandlers).forEach((t) => {
+      Object.keys(eventHandlers).forEach(t => {
         eventHandlers[t]();
         delete eventHandlers[t];
       });
@@ -256,36 +271,48 @@ DOMScroller.prototype = {
     // reflow handling
     this.eventHandlers = {};
 
-    this.bindEvent(win, 'resize', () => {
-      this.reflow();
-    }, false);
+    this.bindEvent(
+      win,
+      "resize",
+      () => {
+        this.reflow();
+      },
+      false
+    );
 
     let lockMouse = false;
     let releaseLockTimer;
 
     const { container, scroller } = this;
 
-    this.bindEvent(container, 'touchstart', (e) => {
-      lockMouse = true;
-      if (releaseLockTimer) {
-        clearTimeout(releaseLockTimer);
-        releaseLockTimer = null;
-      }
-      // Don't react if initial down happens on a form element
-      if (e.touches[0] &&
-        e.touches[0].target &&
-        e.touches[0].target.tagName.match(/input|textarea|select/i) ||
-        this.disabled) {
-        return;
-      }
-      this.clearScrollbarTimer();
-      // reflow since the container may have changed
-      this.reflow();
-      scroller.doTouchStart(e.touches, e.timeStamp);
-    }, willNotPreventDefault);
+    this.bindEvent(
+      container,
+      "touchstart",
+      e => {
+        lockMouse = true;
+        if (releaseLockTimer) {
+          clearTimeout(releaseLockTimer);
+          releaseLockTimer = null;
+        }
+        // Don't react if initial down happens on a form element
+        if (
+          (e.touches[0] &&
+            e.touches[0].target &&
+            e.touches[0].target.tagName.match(/input|textarea|select/i)) ||
+          this.disabled
+        ) {
+          return;
+        }
+        this.clearScrollbarTimer();
+        // reflow since the container may have changed
+        this.reflow();
+        scroller.doTouchStart(e.touches, e.timeStamp);
+      },
+      willNotPreventDefault
+    );
 
     const { preventDefaultOnTouchMove, zooming } = this.options;
-    const onTouchEnd = (e) => {
+    const onTouchEnd = e => {
       scroller.doTouchEnd(e.timeStamp);
       releaseLockTimer = setTimeout(() => {
         lockMouse = false;
@@ -293,61 +320,96 @@ DOMScroller.prototype = {
     };
 
     if (preventDefaultOnTouchMove !== false) {
-      this.bindEvent(container, 'touchmove', (e) => {
-        e.preventDefault();
-        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-        iOSWebViewFix(e, onTouchEnd);
-      }, willPreventDefault);
+      this.bindEvent(
+        container,
+        "touchmove",
+        e => {
+          e.preventDefault();
+          scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+          iOSWebViewFix(e, onTouchEnd);
+        },
+        willPreventDefault
+      );
     } else {
-      this.bindEvent(container, 'touchmove', (e) => {
-        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-        iOSWebViewFix(e, onTouchEnd);
-      }, willNotPreventDefault);
+      this.bindEvent(
+        container,
+        "touchmove",
+        e => {
+          scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+          iOSWebViewFix(e, onTouchEnd);
+        },
+        willNotPreventDefault
+      );
     }
 
-    this.bindEvent(container, 'touchend', onTouchEnd, willNotPreventDefault);
-    this.bindEvent(container, 'touchcancel', onTouchEnd, willNotPreventDefault);
+    this.bindEvent(container, "touchend", onTouchEnd, willNotPreventDefault);
+    this.bindEvent(container, "touchcancel", onTouchEnd, willNotPreventDefault);
 
-    const onMouseUp = (e) => {
+    const onMouseUp = e => {
       scroller.doTouchEnd(e.timeStamp);
-      this.unbindEvent('mousemove');
-      this.unbindEvent('mouseup');
+      this.unbindEvent("mousemove");
+      this.unbindEvent("mouseup");
     };
 
-    const onMouseMove = (e) => {
-      scroller.doTouchMove([{
-        pageX: e.pageX,
-        pageY: e.pageY,
-      }], e.timeStamp);
+    const onMouseMove = e => {
+      scroller.doTouchMove(
+        [
+          {
+            pageX: e.pageX,
+            pageY: e.pageY
+          }
+        ],
+        e.timeStamp
+      );
     };
 
-    this.bindEvent(container, 'mousedown', (e) => {
-      if (
-        lockMouse ||
-        e.target.tagName.match(/input|textarea|select/i) ||
-        this.disabled
-      ) {
-        return;
-      }
-      this.clearScrollbarTimer();
-      scroller.doTouchStart([{
-        pageX: e.pageX,
-        pageY: e.pageY,
-      }], e.timeStamp);
-      // reflow since the container may have changed
-      this.reflow();
-      e.preventDefault();
-      this.bindEvent(document, 'mousemove', onMouseMove, willNotPreventDefault);
-      this.bindEvent(document, 'mouseup', onMouseUp, willNotPreventDefault);
-    }, willPreventDefault);
+    this.bindEvent(
+      container,
+      "mousedown",
+      e => {
+        if (
+          lockMouse ||
+          e.target.tagName.match(/input|textarea|select/i) ||
+          this.disabled
+        ) {
+          return;
+        }
+        this.clearScrollbarTimer();
+        scroller.doTouchStart(
+          [
+            {
+              pageX: e.pageX,
+              pageY: e.pageY
+            }
+          ],
+          e.timeStamp
+        );
+        // reflow since the container may have changed
+        this.reflow();
+        e.preventDefault();
+        this.bindEvent(
+          document,
+          "mousemove",
+          onMouseMove,
+          willNotPreventDefault
+        );
+        this.bindEvent(document, "mouseup", onMouseUp, willNotPreventDefault);
+      },
+      willPreventDefault
+    );
 
     if (zooming) {
-      this.bindEvent(container, 'mousewheel', (e) => {
-        scroller.doMouseZoom(e.wheelDelta, e.timeStamp, e.pageX, e.pageY);
-        e.preventDefault();
-      }, willPreventDefault);
+      this.bindEvent(
+        container,
+        "mousewheel",
+        e => {
+          scroller.doMouseZoom(e.wheelDelta, e.timeStamp, e.pageX, e.pageY);
+          e.preventDefault();
+        },
+        willPreventDefault
+      );
     }
-  },
+  }
 };
 
-export default DOMScroller;
+export default ZScroller;

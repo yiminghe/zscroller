@@ -26,10 +26,10 @@ var desiredFrames = 60;
 var millisecondsPerSecond = 1000;
 var running = {};
 var counter = 1;
-var win = typeof window !== 'undefined' ? window : undefined;
+var win = typeof window !== "undefined" ? window : undefined;
 
 if (!win) {
-  win = typeof global !== 'undefined' ? global : {};
+  win = typeof global !== "undefined" ? global : {};
 }
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -37,32 +37,33 @@ if (!win) {
 
 // requestAnimationFrame polyfill by Erik Möller
 // fixes from Paul Irish and Tino Zijdel
-(function () {
+(function() {
   let lastTime = 0;
-  const vendors = ['ms', 'moz', 'webkit', 'o'];
+  const vendors = ["ms", "moz", "webkit", "o"];
   for (let x = 0; x < vendors.length && !win.requestAnimationFrame; ++x) {
-    win.requestAnimationFrame = win[vendors[x] + 'RequestAnimationFrame'];
-    win.cancelAnimationFrame = win[vendors[x] + 'CancelAnimationFrame'] || win[vendors[x] + 'CancelRequestAnimationFrame']
+    win.requestAnimationFrame = win[vendors[x] + "RequestAnimationFrame"];
+    win.cancelAnimationFrame =
+      win[vendors[x] + "CancelAnimationFrame"] ||
+      win[vendors[x] + "CancelRequestAnimationFrame"];
   }
 
   if (!win.requestAnimationFrame) {
-    win.requestAnimationFrame = (callback) => {
+    win.requestAnimationFrame = callback => {
       const currTime = new Date().getTime();
       const timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      const id = win.setTimeout(function () {
-          callback(currTime + timeToCall)
-        },
-        timeToCall);
+      const id = win.setTimeout(function() {
+        callback(currTime + timeToCall);
+      }, timeToCall);
       lastTime = currTime + timeToCall;
       return id;
     };
   }
   if (!win.cancelAnimationFrame) {
-    win.cancelAnimationFrame = (id) => {
-      clearTimeout(id)
+    win.cancelAnimationFrame = id => {
+      clearTimeout(id);
     };
   }
-}());
+})();
 
 var Animate = {
   /**
@@ -71,7 +72,7 @@ var Animate = {
    * @param id {Integer} Unique animation ID
    * @return {Boolean} Whether the animation was stopped (aka, was running before)
    */
-  stop: function (id) {
+  stop: function(id) {
     var cleared = running[id] != null;
     if (cleared) {
       running[id] = null;
@@ -80,17 +81,15 @@ var Animate = {
     return cleared;
   },
 
-
   /**
    * Whether the given animation is still running.
    *
    * @param id {Integer} Unique animation ID
    * @return {Boolean} Whether the animation is still running
    */
-  isRunning: function (id) {
+  isRunning: function(id) {
     return running[id] != null;
   },
-
 
   /**
    * Start the animation.
@@ -106,7 +105,13 @@ var Animate = {
    *   Signature of the method should be `function(percent) { return modifiedValue; }`
    * @return {Integer} Identifier of animation. Can be used to stop it any time.
    */
-  start: function (stepCallback, verifyCallback, completedCallback, duration, easingMethod) {
+  start: function(
+    stepCallback,
+    verifyCallback,
+    completedCallback,
+    duration,
+    easingMethod
+  ) {
     var start = +new Date();
     var lastFrame = start;
     var percent = 0;
@@ -123,7 +128,7 @@ var Animate = {
     }
 
     // This is the internal step method which is called every few milliseconds
-    var step = function (virtual) {
+    var step = function(virtual) {
       // Normalize virtual value
       var render = virtual !== true;
 
@@ -132,23 +137,28 @@ var Animate = {
 
       // Verification is executed before next animation step
       if (!running[id] || (verifyCallback && !verifyCallback(id))) {
-
         running[id] = null;
-        completedCallback && completedCallback(desiredFrames - (dropCounter / ((now - start) / millisecondsPerSecond)), id, false);
+        completedCallback &&
+          completedCallback(
+            desiredFrames -
+              dropCounter / ((now - start) / millisecondsPerSecond),
+            id,
+            false
+          );
         return;
-
       }
 
       // For the current rendering to apply let's update omitted steps in memory.
       // This is important to bring internal state variables up-to-date with progress in time.
       if (render) {
-
-        var droppedFrames = Math.round((now - lastFrame) / (millisecondsPerSecond / desiredFrames)) - 1;
+        var droppedFrames =
+          Math.round(
+            (now - lastFrame) / (millisecondsPerSecond / desiredFrames)
+          ) - 1;
         for (var j = 0; j < Math.min(droppedFrames, 4); j++) {
           step(true);
           dropCounter++;
         }
-
       }
 
       // Compute percent value
@@ -161,9 +171,18 @@ var Animate = {
 
       // Execute step callback, then...
       var value = easingMethod ? easingMethod(percent) : percent;
-      if ((stepCallback(value, now, render) === false || percent === 1) && render) {
+      if (
+        (stepCallback(value, now, render) === false || percent === 1) &&
+        render
+      ) {
         running[id] = null;
-        completedCallback && completedCallback(desiredFrames - (dropCounter / ((now - start) / millisecondsPerSecond)), id, percent === 1 || duration == null);
+        completedCallback &&
+          completedCallback(
+            desiredFrames -
+              dropCounter / ((now - start) / millisecondsPerSecond),
+            id,
+            percent === 1 || duration == null
+          );
       } else if (render) {
         lastFrame = now;
         win.requestAnimationFrame(step);

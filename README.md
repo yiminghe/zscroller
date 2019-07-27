@@ -26,13 +26,13 @@ dom scroller based on [zynga scroller](https://zynga.github.io/scroller/)
 ## Usage
 
 ```
-import DOMScroller from 'zscroller/lib/DOMScroller';
-var domScroller = new DOMScroller(contentNode, options);
+import ZScroller from 'zscroller/lib/Index';
+var domScroller = new ZScroller(contentNode, options);
 ```
 
 ## Example
 
-http://localhost:8000/examples/
+http://localhost:6006/examples/
 
 online example: http://yiminghe.github.io/zscroller/
 
@@ -51,25 +51,6 @@ most same with [zynga scroller](https://zynga.github.io/scroller/), extra:
 |----------|----------------|----------|--------------|
 |scrollbars |whether show scrollbars | bool | false |
 |onScroll | onScroll callback | () => void | null |
-
-### method
-
-
-
-## Test Case
-
-```
-npm test
-npm run chrome-test
-```
-
-## Coverage
-
-```
-npm run coverage
-```
-
-open coverage/ dir
 
 ## License
 

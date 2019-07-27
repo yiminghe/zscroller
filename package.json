@@ -14,36 +14,54 @@
   "bugs": {
     "url": "https://github.com/yiminghe/zscroller/issues"
   },
-  "files": [
-    "lib",
-    "es",
-    "vendor",
-    "assets/*.css"
-  ],
-  "licenses": "MIT",
-  "main": "./lib/DOMScroller",
-  "module": "./es/DOMScroller",
-  "config": {
-    "port": 8007
+  "license": "MIT",
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg",
+        {
+          "exclude": [
+            "__tests__/**/*"
+          ]
+        }
+      ],
+      [
+        "@pika/plugin-build-web"
+      ],
+      ["@pika/plugin-copy-assets"]
+    ]
   },
   "scripts": {
-    "compile": "rc-tools run compile",
-    "build": "rc-tools run build",
-    "gh-pages": "rc-tools run gh-pages",
-    "start": "rc-tools run server",
-    "pub": "rc-tools run pub",
-    "lint": "rc-tools run lint"
+    "prettier": "prettier --write \"{src,stories}/**/*.{js,tsx}\"",
+    "start": "start-storybook -p 6006",
+    "pub": "npm run build && npm publish pkg",
+    "build": "pack build",
+    "deploy": "storybook-to-ghpages",
+    "lint-staged": "lint-staged"
   },
   "devDependencies": {
+    "@pika/plugin-build-types": "^0.5.1",
+    "@pika/plugin-build-web": "^0.5.1",
+    "@pika/plugin-copy-assets": "^0.5.1",
+    "@pika/plugin-standard-pkg": "^0.5.1",
+    "@pika/types": "^0.5.1",
+    "@storybook/react": "^5.1.9",
+    "@storybook/storybook-deployer": "^2.8.1",
+    "babel-loader": "^8.0.6",
+    "babel-preset-env": "^1.7.0",
+    "lint-staged": "^9.2.1",
     "pre-commit": "1.x",
-    "rc-tools": "6.x",
-    "react": "15.x",
-    "react-dom": "15.x"
+    "prettier": "^1.18.2",
+    "react": "16.x",
+    "react-dom": "16.x"
+  },
+  "lint-staged": {
+    "*.{tsx,js,jsx,ts}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "pre-commit": [
-    "lint"
-  ],
-  "dependencies": {
-    "babel-runtime": "6.x"
-  }
+    "lint-staged"
+  ]
 }

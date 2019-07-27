@@ -1,5 +1,5 @@
-.zscroller {
-  &-scrollbar-y {
+
+  .zscroller-scrollbar-y {
     position: absolute;
     z-index: 9999;
     width: 7px;
@@ -13,7 +13,7 @@
     opacity: 0;
   }
 
-  &-indicator-y {
+  .zscroller-indicator-y {
     box-sizing: border-box;
     position: absolute;
     border: 1px solid rgba(255, 255, 255, 0.901961);
@@ -23,7 +23,7 @@
     background: rgba(0, 0, 0, 0.498039);
   }
 
-  &-scrollbar-x {
+  .zscroller-scrollbar-x {
     position: absolute;
     z-index: 9999;
     height: 7px;
@@ -37,7 +37,7 @@
     opacity: 0;
   }
 
-  &-indicator-x {
+  .zscroller-indicator-x {
     box-sizing: border-box;
     position: absolute;
     border: 1px solid rgba(255, 255, 255, 0.901961);
@@ -46,4 +46,3 @@
     display: block;
     background: rgba(0, 0, 0, 0.498039);
   }
-}
