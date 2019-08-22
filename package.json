@@ -1,6 +1,6 @@
 {
   "name": "zscroller",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "dom scroller based on zynga scroller",
   "keywords": [
     "zynga scroller",
@@ -31,7 +31,12 @@
       [
         "@pika/plugin-build-node"
       ],
-      ["@pika/plugin-copy-assets"]
+      [
+        "@pika/plugin-copy-assets"
+      ],
+      [
+        "pika-plugin-clean-dist-src"
+      ]
     ]
   },
   "scripts": {
@@ -45,7 +50,6 @@
   "devDependencies": {
     "@pika/plugin-build-node": "^0.5.1",
     "@pika/plugin-build-types": "^0.5.1",
-    "pika-plugin-build-web-babel": "^0.6.0",
     "@pika/plugin-copy-assets": "^0.5.1",
     "@pika/plugin-standard-pkg": "^0.5.1",
     "@pika/types": "^0.5.1",
@@ -53,6 +57,8 @@
     "@storybook/storybook-deployer": "^2.8.1",
     "babel-loader": "^8.0.6",
     "lint-staged": "^9.2.1",
+    "pika-plugin-build-web-babel": "^0.6.0",
+    "pika-plugin-clean-dist-src": "^0.1.1",
     "pre-commit": "1.x",
     "prettier": "^1.18.2",
     "react": "16.x",
