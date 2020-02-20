@@ -79,7 +79,7 @@ interface Y {
 }
 
 interface ZScrollerOption {
-  locking: boolean;
+  locking?: boolean;
   viewport: ViewportSize;
   content: ContentSize;
   x?: X;

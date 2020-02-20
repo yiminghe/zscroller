@@ -22,14 +22,6 @@ dom scroller based on [zynga scroller](https://zynga.github.io/scroller/)
 [download-image]: https://img.shields.io/npm/dm/zscroller.svg?style=flat-square
 [download-url]: https://npmjs.org/package/zscroller
 
-
-## Usage
-
-```
-import ZScroller from 'zscroller';
-var domScroller = new ZScroller(contentNode, options);
-```
-
 ## Example
 
 http://localhost:6006/examples/
@@ -55,6 +47,7 @@ interface ContentSize {
     height: number;
 }
 interface X {
+    // scrollbar x size
     width: number;
     height?: number;
     scrollbar?: {
@@ -66,6 +59,7 @@ interface X {
 }
 interface Y {
     width?: number;
+     // scrollbar y height
     height: number;
     scrollbar?: {
         style: any;
@@ -75,7 +69,7 @@ interface Y {
     };
 }
 interface ZScrollerOption {
-    locking: boolean;
+    locking?: boolean;
     viewport: ViewportSize;
     content: ContentSize;
     x?: X;
