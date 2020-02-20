@@ -1,3 +1,5 @@
+// @ts-ignore
+
 /*
  * Scroller
  * http://github.com/zynga/scroller
@@ -12,7 +14,7 @@
  * License: MIT + Apache (V2)
  */
 
-import Animate from "./Animate";
+import Animate from './Animate';
 
 var Scroller;
 
@@ -70,7 +72,7 @@ Scroller = function(callback, options) {
     penetrationDeceleration: 0.03,
 
     /** This configures the amount of change applied to acceleration when reaching boundaries  **/
-    penetrationAcceleration: 0.08
+    penetrationAcceleration: 0.08,
   };
 
   for (var key in options) {
@@ -270,7 +272,7 @@ var members = {
     clientWidth,
     clientHeight,
     contentWidth,
-    contentHeight
+    contentHeight,
   ) {
     var self = this;
 
@@ -338,7 +340,7 @@ var members = {
     height,
     activateCallback,
     deactivateCallback,
-    startCallback
+    startCallback,
   ) {
     var self = this;
 
@@ -358,7 +360,7 @@ var members = {
       this.__scrollLeft,
       -this.__refreshHeight,
       this.__zoomLevel,
-      true
+      true,
     );
 
     if (this.__refreshStart) {
@@ -391,7 +393,7 @@ var members = {
     return {
       left: self.__scrollLeft,
       top: self.__scrollTop,
-      zoom: self.__zoomLevel
+      zoom: self.__zoomLevel,
     };
   },
 
@@ -405,7 +407,7 @@ var members = {
 
     return {
       left: self.__maxScrollLeft,
-      top: self.__maxScrollTop
+      top: self.__maxScrollTop,
     };
   },
 
@@ -423,7 +425,7 @@ var members = {
     var self = this;
 
     if (!self.options.zooming) {
-      throw new Error("Zooming is not enabled!");
+      throw new Error('Zooming is not enabled!');
     }
 
     // Add callback if exists
@@ -451,7 +453,7 @@ var members = {
     // Limit level according to configuration
     level = Math.max(
       Math.min(level, self.options.maxZoom),
-      self.options.minZoom
+      self.options.minZoom,
     );
 
     // Recompute maximum values while temporary tweaking maximum scroll ranges
@@ -497,7 +499,7 @@ var members = {
       animate,
       originLeft,
       originTop,
-      callback
+      callback,
     );
   },
 
@@ -521,7 +523,7 @@ var members = {
     // Correct coordinates based on new zoom level
     if (zoom != null && zoom !== self.__zoomLevel) {
       if (!self.options.zooming) {
-        throw new Error("Zooming is not enabled!");
+        throw new Error('Zooming is not enabled!');
       }
 
       left *= zoom;
@@ -608,7 +610,7 @@ var members = {
       self.__zoomLevel * change,
       false,
       pageX - self.__clientLeft,
-      pageY - self.__clientTop
+      pageY - self.__clientTop,
     );
   },
 
@@ -618,14 +620,14 @@ var members = {
   doTouchStart: function(touches, timeStamp) {
     // Array-like check is enough here
     if (touches.length == null) {
-      throw new Error("Invalid touch list: " + touches);
+      throw new Error('Invalid touch list: ' + touches);
     }
 
     if (timeStamp instanceof Date) {
       timeStamp = timeStamp.valueOf();
     }
-    if (typeof timeStamp !== "number") {
-      throw new Error("Invalid timestamp value: " + timeStamp);
+    if (typeof timeStamp !== 'number') {
+      throw new Error('Invalid timestamp value: ' + timeStamp);
     }
 
     var self = this;
@@ -701,14 +703,14 @@ var members = {
   doTouchMove: function(touches, timeStamp, scale) {
     // Array-like check is enough here
     if (touches.length == null) {
-      throw new Error("Invalid touch list: " + touches);
+      throw new Error('Invalid touch list: ' + touches);
     }
 
     if (timeStamp instanceof Date) {
       timeStamp = timeStamp.valueOf();
     }
-    if (typeof timeStamp !== "number") {
-      throw new Error("Invalid timestamp value: " + timeStamp);
+    if (typeof timeStamp !== 'number') {
+      throw new Error('Invalid timestamp value: ' + timeStamp);
     }
 
     var self = this;
@@ -752,7 +754,7 @@ var members = {
         // Limit level according to configuration
         level = Math.max(
           Math.min(level, self.options.maxZoom),
-          self.options.minZoom
+          self.options.minZoom,
         );
 
         // Only do further compution when change happened
@@ -890,8 +892,8 @@ var members = {
     if (timeStamp instanceof Date) {
       timeStamp = timeStamp.valueOf();
     }
-    if (typeof timeStamp !== "number") {
-      throw new Error("Invalid timestamp value: " + timeStamp);
+    if (typeof timeStamp !== 'number') {
+      throw new Error('Invalid timestamp value: ' + timeStamp);
     }
 
     var self = this;
@@ -983,7 +985,7 @@ var members = {
           self.__scrollLeft,
           -self.__refreshHeight,
           self.__zoomLevel,
-          true
+          true,
         );
 
         if (self.__refreshStart) {
@@ -997,7 +999,7 @@ var members = {
           self.__scrollLeft,
           self.__scrollTop,
           true,
-          self.__zoomLevel
+          self.__zoomLevel,
         );
 
         // Directly signalize deactivation (nothing todo on refresh?)
@@ -1062,7 +1064,7 @@ var members = {
             self.__callback(
               self.__scrollLeft,
               self.__scrollTop,
-              self.__zoomLevel
+              self.__zoomLevel,
             );
           }
         }
@@ -1075,7 +1077,7 @@ var members = {
       var completed = function(
         renderedFramesPerSecond,
         animationId,
-        wasFinished
+        wasFinished,
       ) {
         if (animationId === self.__isAnimating) {
           self.__isAnimating = false;
@@ -1100,7 +1102,7 @@ var members = {
         verify,
         completed,
         self.options.animationDuration,
-        wasAnimating ? easeOutCubic : easeInOutCubic
+        wasAnimating ? easeOutCubic : easeInOutCubic,
       );
     } else {
       self.__scheduledLeft = self.__scrollLeft = left;
@@ -1135,11 +1137,11 @@ var members = {
 
     self.__maxScrollLeft = Math.max(
       self.__contentWidth * zoomLevel - self.__clientWidth,
-      0
+      0,
     );
     self.__maxScrollTop = Math.max(
       self.__contentHeight * zoomLevel - self.__clientHeight,
-      0
+      0,
     );
   },
 
@@ -1159,11 +1161,11 @@ var members = {
     if (self.options.paging) {
       var scrollLeft = Math.max(
         Math.min(self.__scrollLeft, self.__maxScrollLeft),
-        0
+        0,
       );
       var scrollTop = Math.max(
         Math.min(self.__scrollTop, self.__maxScrollTop),
-        0
+        0,
       );
       var clientWidth = self.__clientWidth;
       var clientHeight = self.__clientHeight;
@@ -1215,7 +1217,7 @@ var members = {
     var completed = function(
       renderedFramesPerSecond,
       animationId,
-      wasFinished
+      wasFinished,
     ) {
       self.__isDecelerating = false;
       // Animate to grid when snapping is active, otherwise just fix out-of-boundary positions
@@ -1225,7 +1227,7 @@ var members = {
         self.__scrollTop,
         self.options.snapping,
         null,
-        self.__didDecelerationComplete && self.options.scrollingComplete
+        self.__didDecelerationComplete && self.options.scrollingComplete,
       );
     };
 
@@ -1256,7 +1258,7 @@ var members = {
     if (!self.options.bouncing) {
       var scrollLeftFixed = Math.max(
         Math.min(self.__maxDecelerationScrollLeft, scrollLeft),
-        self.__minDecelerationScrollLeft
+        self.__minDecelerationScrollLeft,
       );
       if (scrollLeftFixed !== scrollLeft) {
         scrollLeft = scrollLeftFixed;
@@ -1265,7 +1267,7 @@ var members = {
 
       var scrollTopFixed = Math.max(
         Math.min(self.__maxDecelerationScrollTop, scrollTop),
-        self.__minDecelerationScrollTop
+        self.__minDecelerationScrollTop,
       );
       if (scrollTopFixed !== scrollTop) {
         scrollTop = scrollTopFixed;
@@ -1345,7 +1347,7 @@ var members = {
         }
       }
     }
-  }
+  },
 };
 
 // Copy over members to prototype

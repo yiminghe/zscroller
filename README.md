@@ -45,12 +45,73 @@ online example: http://yiminghe.github.io/zscroller/
 
 ### options
 
-most same with [zynga scroller](https://zynga.github.io/scroller/), extra:
 
-| name     | description    | type     | default      |
-|----------|----------------|----------|--------------|
-|scrollbars |whether show scrollbars | bool | false |
-|onScroll | onScroll callback | () => void | null |
+```js
+interface ViewportSize {
+  width: number;
+  height: number;
+}
+
+interface ContentSize {
+  width: number;
+  height: number;
+}
+
+interface X {
+  width: number;
+  height?: number;
+  scrollbar?: { style: any };
+  indicator?: { style: any };
+}
+
+interface Y {
+  width?: number;
+  height: number;
+  scrollbar?: { style: any };
+  indicator?: { style: any };
+}
+
+interface ZScrollerOption {
+  locking: boolean;
+  viewport: ViewportSize;
+  content: ContentSize;
+  x?: X;
+  y?: Y;
+  container?: HTMLElement;
+  scrollingComplete?: () => any;
+  onScroll?: (left: number, top: number, zoom: number) => any;
+}
+```
+
+```js
+zscroller = new ZScroller({
+    container: container.current,
+    viewport: {
+      height: container.current.clientHeight - 20, // padding
+      width: container.current.clientWidth - 20,
+    },
+    content: {
+      width: content.current.offsetWidth,
+      height: content.current.offsetHeight
+    },
+    locking: locking.current.checked,
+
+    x: scrollingX.current.checked ? {
+      width: container.current.clientWidth - 4,
+
+    } : undefined,
+    y: scrollingY.current.checked ? {
+      height: container.current.clientHeight - 4, // padding
+    } : undefined,
+
+    onScroll(left, top) {
+      content.current.style.transform = `translate3d(${-left}px,${-top}px,0)`
+      content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
+    }
+  });
+  container.current.appendChild(zscroller.getScrollbar('x'));
+  container.current.appendChild(zscroller.getScrollbar('y'));
+```
 
 ## License
 

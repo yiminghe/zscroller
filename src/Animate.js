@@ -1,3 +1,5 @@
+// @ts-ignore
+
 /*
  * Scroller
  * http://github.com/zynga/scroller
@@ -26,10 +28,10 @@ var desiredFrames = 60;
 var millisecondsPerSecond = 1000;
 var running = {};
 var counter = 1;
-var win = typeof window !== "undefined" ? window : undefined;
+var win = typeof window !== 'undefined' ? window : undefined;
 
 if (!win) {
-  win = typeof global !== "undefined" ? global : {};
+  win = typeof global !== 'undefined' ? global : {};
 }
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -39,12 +41,12 @@ if (!win) {
 // fixes from Paul Irish and Tino Zijdel
 (function() {
   let lastTime = 0;
-  const vendors = ["ms", "moz", "webkit", "o"];
+  const vendors = ['ms', 'moz', 'webkit', 'o'];
   for (let x = 0; x < vendors.length && !win.requestAnimationFrame; ++x) {
-    win.requestAnimationFrame = win[vendors[x] + "RequestAnimationFrame"];
+    win.requestAnimationFrame = win[vendors[x] + 'RequestAnimationFrame'];
     win.cancelAnimationFrame =
-      win[vendors[x] + "CancelAnimationFrame"] ||
-      win[vendors[x] + "CancelRequestAnimationFrame"];
+      win[vendors[x] + 'CancelAnimationFrame'] ||
+      win[vendors[x] + 'CancelRequestAnimationFrame'];
   }
 
   if (!win.requestAnimationFrame) {
@@ -110,7 +112,7 @@ var Animate = {
     verifyCallback,
     completedCallback,
     duration,
-    easingMethod
+    easingMethod,
   ) {
     var start = +new Date();
     var lastFrame = start;
@@ -143,7 +145,7 @@ var Animate = {
             desiredFrames -
               dropCounter / ((now - start) / millisecondsPerSecond),
             id,
-            false
+            false,
           );
         return;
       }
@@ -153,7 +155,7 @@ var Animate = {
       if (render) {
         var droppedFrames =
           Math.round(
-            (now - lastFrame) / (millisecondsPerSecond / desiredFrames)
+            (now - lastFrame) / (millisecondsPerSecond / desiredFrames),
           ) - 1;
         for (var j = 0; j < Math.min(droppedFrames, 4); j++) {
           step(true);
@@ -181,7 +183,7 @@ var Animate = {
             desiredFrames -
               dropCounter / ((now - start) / millisecondsPerSecond),
             id,
-            percent === 1 || duration == null
+            percent === 1 || duration == null,
           );
       } else if (render) {
         lastFrame = now;
@@ -197,7 +199,7 @@ var Animate = {
 
     // Return unique animation ID
     return id;
-  }
+  },
 };
 
 export default Animate;
