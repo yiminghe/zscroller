@@ -420,6 +420,14 @@ class ZScroller {
     });
   }
 
+  scrollTo(x: number, y: number, animate: boolean): void {
+    return this._scroller.scrollTo(x, y, animate);
+  }
+
+  scrollBy(x: number, y: number, animate: boolean): void {
+    return this._scroller.scrollBy(x, y, animate);
+  }
+
   _onIndicatorMouseDown(e) {
     this._initPagePos = {
       pageX: e.pageX,
@@ -437,7 +445,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -445,7 +453,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }

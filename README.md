@@ -43,45 +43,80 @@ online example: http://yiminghe.github.io/zscroller/
 
 ## API
 
-### options
-
+### typed
 
 ```js
 interface ViewportSize {
-  width: number;
-  height: number;
+    width: number;
+    height: number;
 }
-
 interface ContentSize {
-  width: number;
-  height: number;
+    width: number;
+    height: number;
 }
-
 interface X {
-  width: number;
-  height?: number;
-  scrollbar?: { style: any };
-  indicator?: { style: any };
+    width: number;
+    height?: number;
+    scrollbar?: {
+        style: any;
+    };
+    indicator?: {
+        style: any;
+    };
 }
-
 interface Y {
-  width?: number;
-  height: number;
-  scrollbar?: { style: any };
-  indicator?: { style: any };
+    width?: number;
+    height: number;
+    scrollbar?: {
+        style: any;
+    };
+    indicator?: {
+        style: any;
+    };
 }
-
 interface ZScrollerOption {
-  locking: boolean;
-  viewport: ViewportSize;
-  content: ContentSize;
-  x?: X;
-  y?: Y;
-  container?: HTMLElement;
-  scrollingComplete?: () => any;
-  onScroll?: (left: number, top: number, zoom: number) => any;
+    locking: boolean;
+    viewport: ViewportSize;
+    content: ContentSize;
+    x?: X;
+    y?: Y;
+    container?: HTMLElement;
+    scrollingComplete?: () => any;
+    onScroll?: (left: number, top: number, zoom: number) => any;
+}
+declare class ZScroller {
+    private _ratio;
+    private _containerMouseDownTimer;
+    private _options;
+    private _zOptions;
+    private _destroyed;
+    private _timer;
+    private _scrollbars;
+    private _indicators;
+    private _indicatorsSize;
+    private _indicatorsPos;
+    private _scrollbarsOpacity;
+    private _scroller;
+    private _disabled;
+    private _eventHandlers;
+    private _initPagePos;
+    constructor(_options: ZScrollerOption);
+    scrollTo(x: number, y: number, animate: boolean): void;
+    scrollBy(x: number, y: number, animate: boolean): void;
+    getScrollbar(type: any): HTMLElement;
+    setDisabled(disabled: any): void;
+    // relayout
+    setDimensions({ viewport, content, x, y, }?: {
+        viewport?: ViewportSize;
+        content?: ContentSize;
+        x?: X;
+        y?: Y;
+    }): void;
+    destroy(): void;
 }
 ```
+
+### usage
 
 ```js
 zscroller = new ZScroller({
