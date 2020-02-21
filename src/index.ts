@@ -481,7 +481,11 @@ class ZScroller {
   _onScrollbarMouseDown(e, type) {
     let init = true;
     const { pageX, pageY } = e;
-    const offset = { ...this._scrollbars[type].getBoundingClientRect() };
+    let offset = this._scrollbars[type].getBoundingClientRect();
+    offset = {
+      left: offset.left,
+      top: offset.top,
+    };
     offset.left += window.pageXOffset;
     offset.top += window.pageYOffset;
     let direction = 0;
@@ -489,13 +493,16 @@ class ZScroller {
       type === 'x'
         ? this._options.viewport.width
         : this._options.viewport.height;
-    if (this._containerMouseDownTimer !== null) {
+
+    if (this._containerMouseDownTimer) {
       return;
     }
     if (type === 'x') {
-      direction = pageX - offset.left - this._scroller.__scrollLeft;
+      direction =
+        pageX - offset.left - this._scroller.__scrollLeft / this._ratio.x;
     } else {
-      direction = pageY - offset.top - this._scroller.__scrollTop;
+      direction =
+        pageY - offset.top - this._scroller.__scrollTop / this._ratio.y;
     }
     if (direction) {
       direction = direction > 0 ? 1 : -1;
@@ -507,9 +514,9 @@ class ZScroller {
       ];
       const indicatorSize = this._indicatorsSize[type];
       if (type === 'x') {
-        pos = pageX - offset.left - scrollPosition;
+        pos = pageX - offset.left - scrollPosition / this._ratio.x;
       } else {
-        pos = pageY - offset.top - scrollPosition;
+        pos = pageY - offset.top - scrollPosition / this._ratio.y;
       }
       if (pos * direction < 0 || (pos >= 0 && pos < indicatorSize)) {
         this._endScroll();
@@ -535,8 +542,9 @@ class ZScroller {
   }
 
   _endScroll() {
-    this._containerMouseDownTimer &&
+    if (this._containerMouseDownTimer) {
       clearTimeout(this._containerMouseDownTimer);
+    }
     this._containerMouseDownTimer = null;
   }
 
