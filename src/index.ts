@@ -104,6 +104,7 @@ class ZScroller {
   private _scroller: any;
   private _disabled: boolean;
   private _eventHandlers: any[];
+  private __onIndicatorStartMouseMoving: boolean;
   private _initPagePos: {
     pageX: number;
     pageY: number;
@@ -440,12 +441,14 @@ class ZScroller {
   }
 
   _onIndicatorMouseMove(e, type) {
-    document.body.setAttribute('unselectable', 'on');
-
+    if (!this.__onIndicatorStartMouseMoving) {
+      document.body.setAttribute('unselectable', 'on');
+      this.__onIndicatorStartMouseMoving = true;
+    }
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-        this._initPagePos.left,
+          this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -453,7 +456,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-        this._initPagePos.top,
+          this._initPagePos.top,
         false,
       );
     }
@@ -462,7 +465,8 @@ class ZScroller {
   }
 
   _onIndicatorMouseUp(e) {
-    document.body.setAttribute('unselectable', '');
+    this.__onIndicatorStartMouseMoving = false;
+    document.body.removeAttribute('unselectable');
     preventDefault(e);
     e.stopPropagation();
   }
