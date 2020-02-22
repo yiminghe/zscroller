@@ -103,26 +103,23 @@ import ZScroller from 'zscroller';
 const zscroller = new ZScroller({
     container: container,
     viewport: {
-      height: container.current.clientHeight - 20, // padding
-      width: container.current.clientWidth - 20,
+      height: container.clientHeight - 20, // padding
+      width: container.clientWidth - 20,
     },
     content: {
-      width: content.current.offsetWidth,
-      height: content.current.offsetHeight
+      width: content.offsetWidth,
+      height: content.offsetHeight
     },
-    locking: locking.current.checked,
+    x: {
+      width: container.current.clientWidth - 4, // padding
 
-    x: scrollingX.current.checked ? {
-      width: container.current.clientWidth - 4,
-
-    } : undefined,
-    y: scrollingY.current.checked ? {
+    },
+    y: {
       height: container.current.clientHeight - 4, // padding
-    } : undefined,
-
+    },
     onScroll(left, top) {
-      content.current.style.transform = `translate3d(${-left}px,${-top}px,0)`
-      content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
+      content.style.transform = `translate3d(${-left}px,${-top}px,0)`
+      content.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
     }
   });
 container.appendChild(zscroller.getScrollbar('x'));
