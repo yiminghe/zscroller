@@ -79,21 +79,6 @@ interface ZScrollerOption {
     onScroll?: (left: number, top: number, zoom: number) => any;
 }
 declare class ZScroller {
-    private _ratio;
-    private _containerMouseDownTimer;
-    private _options;
-    private _zOptions;
-    private _destroyed;
-    private _timer;
-    private _scrollbars;
-    private _indicators;
-    private _indicatorsSize;
-    private _indicatorsPos;
-    private _scrollbarsOpacity;
-    private _scroller;
-    private _disabled;
-    private _eventHandlers;
-    private _initPagePos;
     constructor(_options: ZScrollerOption);
     scrollTo(x: number, y: number, animate: boolean): void;
     scrollBy(x: number, y: number, animate: boolean): void;
@@ -113,8 +98,10 @@ declare class ZScroller {
 ### usage
 
 ```js
-zscroller = new ZScroller({
-    container: container.current,
+import ZScroller from 'zscroller';
+
+const zscroller = new ZScroller({
+    container: container,
     viewport: {
       height: container.current.clientHeight - 20, // padding
       width: container.current.clientWidth - 20,
@@ -138,8 +125,8 @@ zscroller = new ZScroller({
       content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
     }
   });
-  container.current.appendChild(zscroller.getScrollbar('x'));
-  container.current.appendChild(zscroller.getScrollbar('y'));
+container.appendChild(zscroller.getScrollbar('x'));
+container.appendChild(zscroller.getScrollbar('y'));
 ```
 
 ## License
