@@ -64,19 +64,22 @@ interface ContentSize {
   height: number;
 }
 
-interface X {
-  width: number;
+interface XY {
+  width?: number;
   height?: number;
-  scrollbar?: { style: any };
-  indicator?: { style: any };
+  scrollbar?: {
+    style: any;
+    className: string;
+  };
+  indicator?: {
+    style: any;
+    className: string;
+  };
 }
 
-interface Y {
-  width?: number;
-  height: number;
-  scrollbar?: { style: any };
-  indicator?: { style: any };
-}
+type X = XY & { width: number; }
+
+type Y = XY & { height: number; }
 
 interface ZScrollerOption {
   locking?: boolean;
@@ -166,10 +169,15 @@ class ZScroller {
         scrollbars[k] = document.createElement('div');
         scrollbars[k].className = `zscroller-scrollbar-${k}`;
         if (scrollerStyle.scrollbar) {
-          Object.assign(
-            scrollbars[k].style,
-            scrollerStyle.scrollbar.style || {},
-          );
+          if (scrollerStyle.scrollbar.style) {
+            Object.assign(
+              scrollbars[k].style,
+              scrollerStyle.scrollbar.style,
+            );
+          }
+          if (scrollerStyle.scrollbar.className) {
+            scrollbars[k].className += ' ' + scrollerStyle.scrollbar.className;
+          }
         }
         if (scrollerStyle.width) {
           scrollbars[k].style.width = scrollerStyle.width + 'px';
@@ -180,10 +188,15 @@ class ZScroller {
         indicators[k] = document.createElement('div');
         indicators[k].className = `zscroller-indicator-${k}`;
         if (scrollerStyle.indicator) {
-          Object.assign(
-            indicators[k].style,
-            scrollerStyle.indicator.style || {},
-          );
+          if (scrollerStyle.indicator.style) {
+            Object.assign(
+              indicators[k].style,
+              scrollerStyle.indicator.style,
+            );
+          }
+          if (scrollerStyle.indicator.className) {
+            indicators[k].className += ' ' + scrollerStyle.indicator.className;
+          }
         }
         scrollbars[k].appendChild(indicators[k]);
         indicatorsSize[k] = -1;
@@ -448,7 +461,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -456,7 +469,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }
