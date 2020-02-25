@@ -68,12 +68,12 @@ interface XY {
   width?: number;
   height?: number;
   scrollbar?: {
-    style: any;
-    className: string;
+    style?: any;
+    className?: string;
   };
   indicator?: {
-    style: any;
-    className: string;
+    style?: any;
+    className?: string;
   };
 }
 
