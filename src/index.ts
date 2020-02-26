@@ -54,6 +54,27 @@ function addEventListener(target, type, fn, _options = willNotPreventDefault) {
   };
 }
 
+function deltaX(event) {
+  return 'deltaX' in event
+    ? event.deltaX
+    : // Fallback to `wheelDeltaX` for Webkit and normalize (right is positive).
+    'wheelDeltaX' in event
+    ? -event.wheelDeltaX
+    : 0;
+}
+
+function deltaY(event) {
+  return 'deltaY' in event
+    ? event.deltaY
+    : // Fallback to `wheelDeltaY` for Webkit and normalize (down is positive).
+    'wheelDeltaY' in event
+    ? -event.wheelDeltaY
+    : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
+    'wheelDelta' in event
+    ? -event.wheelDelta
+    : 0;
+}
+
 interface ViewportSize {
   width: number;
   height: number;
@@ -77,9 +98,9 @@ interface XY {
   };
 }
 
-type X = XY & { width: number; }
+type X = XY & { width: number };
 
-type Y = XY & { height: number; }
+type Y = XY & { height: number };
 
 interface ZScrollerOption {
   locking?: boolean;
@@ -170,10 +191,7 @@ class ZScroller {
         scrollbars[k].className = `zscroller-scrollbar-${k}`;
         if (scrollerStyle.scrollbar) {
           if (scrollerStyle.scrollbar.style) {
-            Object.assign(
-              scrollbars[k].style,
-              scrollerStyle.scrollbar.style,
-            );
+            Object.assign(scrollbars[k].style, scrollerStyle.scrollbar.style);
           }
           if (scrollerStyle.scrollbar.className) {
             scrollbars[k].className += ' ' + scrollerStyle.scrollbar.className;
@@ -189,10 +207,7 @@ class ZScroller {
         indicators[k].className = `zscroller-indicator-${k}`;
         if (scrollerStyle.indicator) {
           if (scrollerStyle.indicator.style) {
-            Object.assign(
-              indicators[k].style,
-              scrollerStyle.indicator.style,
-            );
+            Object.assign(indicators[k].style, scrollerStyle.indicator.style);
           }
           if (scrollerStyle.indicator.className) {
             indicators[k].className += ' ' + scrollerStyle.indicator.className;
@@ -398,9 +413,14 @@ class ZScroller {
       this._bindEvent(container, 'touchend', onTouchEnd);
       this._bindEvent(container, 'touchcancel', onTouchEnd);
 
-      this._bindEvent(container, 'mousewheel', e => {
-        this._onContainerMouseWheel(e);
-      });
+      this._bindEvent(
+        container,
+        'wheel',
+        e => {
+          this._onContainerMouseWheel(e);
+        },
+        false,
+      );
     }
 
     Object.keys(this._indicators).forEach(type => {
@@ -461,7 +481,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-        this._initPagePos.left,
+          this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -469,7 +489,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-        this._initPagePos.top,
+          this._initPagePos.top,
         false,
       );
     }
@@ -485,9 +505,7 @@ class ZScroller {
   }
 
   _onContainerMouseWheel(e: any) {
-    var wheelData = e.detail ? e.detail : e.wheelDelta / -40,
-      dragOffset = (wheelData / 3) * 10 * 1;
-    this._scroller.scrollBy(0, dragOffset, false);
+    this._scroller.scrollBy(deltaX(e), deltaY(e), false);
     preventDefault(e);
   }
 
