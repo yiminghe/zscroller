@@ -83,6 +83,7 @@ declare class ZScroller {
     scrollTo(x: number, y: number, animate: boolean): void;
     scrollBy(x: number, y: number, animate: boolean): void;
     getScrollbar(type: any): HTMLElement;
+    getScrollPosition(): {left:number;top:number;};
     setDisabled(disabled: any): void;
     // relayout
     setDimensions({ viewport, content, x, y, }?: {

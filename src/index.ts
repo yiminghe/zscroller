@@ -285,6 +285,13 @@ class ZScroller {
     }
   }
 
+  getScrollPosition() {
+    return {
+      left: this._scroller.__scrollLeft,
+      top: this._scroller.__scrollTop,
+    };
+  }
+
   getScrollbar(type): HTMLElement {
     return this._scrollbars[type];
   }
