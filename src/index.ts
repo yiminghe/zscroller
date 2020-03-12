@@ -412,10 +412,16 @@ class ZScroller {
         scroller.doTouchEnd(e.timeStamp);
       };
 
-      this._bindEvent(container, 'touchmove', e => {
-        scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-        iOSWebViewFix(e, onTouchEnd);
-      });
+      this._bindEvent(
+        container,
+        'touchmove',
+        e => {
+          e.preventDefault();
+          scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
+          iOSWebViewFix(e, onTouchEnd);
+        },
+        false,
+      );
 
       this._bindEvent(container, 'touchend', onTouchEnd);
       this._bindEvent(container, 'touchcancel', onTouchEnd);
