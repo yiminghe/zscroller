@@ -59,8 +59,8 @@ function deltaX(event) {
     ? event.deltaX
     : // Fallback to `wheelDeltaX` for Webkit and normalize (right is positive).
     'wheelDeltaX' in event
-    ? -event.wheelDeltaX
-    : 0;
+      ? -event.wheelDeltaX
+      : 0;
 }
 
 function deltaY(event) {
@@ -68,11 +68,11 @@ function deltaY(event) {
     ? event.deltaY
     : // Fallback to `wheelDeltaY` for Webkit and normalize (down is positive).
     'wheelDeltaY' in event
-    ? -event.wheelDeltaY
-    : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
-    'wheelDelta' in event
-    ? -event.wheelDelta
-    : 0;
+      ? -event.wheelDeltaY
+      : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
+      'wheelDelta' in event
+        ? -event.wheelDelta
+        : 0;
 }
 
 interface ViewportSize {
@@ -129,6 +129,7 @@ class ZScroller {
   private _disabled: boolean;
   private _eventHandlers: any[];
   private __onIndicatorStartMouseMoving: boolean;
+  private _insideUserEvent: boolean;
   private _initPagePos: {
     pageX: number;
     pageY: number;
@@ -149,7 +150,6 @@ class ZScroller {
     let indicators;
     let indicatorsSize;
     let indicatorsPos;
-    let scrollbarsOpacity;
 
     this._options = _options;
 
@@ -181,7 +181,7 @@ class ZScroller {
     indicators = this._indicators = {};
     indicatorsSize = this._indicatorsSize = {};
     indicatorsPos = this._indicatorsPos = {};
-    scrollbarsOpacity = this._scrollbarsOpacity = {};
+    this._scrollbarsOpacity = {};
 
     ['x', 'y'].forEach(k => {
       const optionName = k === 'x' ? 'scrollingX' : 'scrollingY';
@@ -215,7 +215,7 @@ class ZScroller {
         }
         scrollbars[k].appendChild(indicators[k]);
         indicatorsSize[k] = -1;
-        scrollbarsOpacity[k] = 0;
+        this._setScrollbarOpacity(k, 0);
         indicatorsPos[k] = 0;
       }
     });
@@ -307,9 +307,19 @@ class ZScroller {
     }
   }
   _setScrollbarOpacity(axis, opacity) {
-    if (this._scrollbarsOpacity[axis] !== opacity) {
-      this._scrollbars[axis].style.opacity = opacity;
-      this._scrollbarsOpacity[axis] = opacity;
+    if (isTouch) {
+      if (
+        !opacity ||
+        (this._insideUserEvent && this._scrollbarsOpacity[axis] !== opacity)
+      ) {
+        this._scrollbars[axis].style.opacity = opacity;
+        this._scrollbarsOpacity[axis] = opacity;
+      }
+    } else {
+      if (this._scrollbarsOpacity[axis] !== opacity) {
+        this._scrollbars[axis].style.opacity = opacity;
+        this._scrollbarsOpacity[axis] = opacity;
+      }
     }
   }
   _setIndicatorPos(axis, value) {
@@ -402,7 +412,7 @@ class ZScroller {
             return;
           }
           this._clearScrollbarTimer();
-
+          this._insideUserEvent = true;
           scroller.doTouchStart(e.touches, e.timeStamp);
         },
         willNotPreventDefault,
@@ -410,6 +420,7 @@ class ZScroller {
 
       const onTouchEnd = e => {
         scroller.doTouchEnd(e.timeStamp);
+        this._insideUserEvent = false;
       };
 
       this._bindEvent(
@@ -430,7 +441,9 @@ class ZScroller {
         container,
         'wheel',
         e => {
+          this._insideUserEvent = true;
           this._onContainerMouseWheel(e);
+          this._insideUserEvent = false;
         },
         false,
       );
@@ -440,6 +453,7 @@ class ZScroller {
       const indicator = this._indicators[type];
       this._bindEvent(indicator, 'mousedown', e => {
         if (e.button === 0) {
+          this._insideUserEvent = true;
           this._onIndicatorMouseDown(e);
           let moveHandler = this._bindEvent(document, 'mousemove', e => {
             this._onIndicatorMouseMove(e, type);
@@ -448,6 +462,7 @@ class ZScroller {
             this._onIndicatorMouseUp(e);
             moveHandler();
             upHandler();
+            this._insideUserEvent = false;
           });
         }
       });
@@ -457,10 +472,12 @@ class ZScroller {
       const bar = this._scrollbars[type];
       this._bindEvent(bar, 'mousedown', e => {
         if (e.button === 0) {
+          this._insideUserEvent = true;
           this._onScrollbarMouseDown(e, type);
           let upHandler = this._bindEvent(document, 'mouseup', e => {
             this._onScrollbarMouseup(e);
             upHandler();
+            this._insideUserEvent = false;
           });
         }
       });
@@ -494,7 +511,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -502,7 +519,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }

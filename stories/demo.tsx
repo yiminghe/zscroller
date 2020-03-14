@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ZScroller from '../src';
 import '../assets/index.css';
 import { storiesOf } from '@storybook/react';
@@ -10,8 +10,8 @@ const scrollingX = React.createRef();
 const scrollingY = React.createRef();
 const locking = React.createRef();
 
-function start(e) {
-  e.currentTarget.disabled = true;
+function start(e?) {
+  (document.getElementById('start') as any).disabled = true;
   zscroller = new ZScroller({
     container: container.current,
     viewport: {
@@ -26,13 +26,13 @@ function start(e) {
 
     x: scrollingX.current.checked
       ? {
-          width: container.current.clientWidth - 4,
-        }
+        width: container.current.clientWidth - 4,
+      }
       : undefined,
     y: scrollingY.current.checked
       ? {
-          height: container.current.clientHeight - 4, // padding
-        }
+        height: container.current.clientHeight - 4, // padding
+      }
       : undefined,
 
     onScroll(left, top) {
@@ -73,8 +73,11 @@ function getAnchor(a) {
   return <div style={style}>{a}</div>;
 }
 
-const Demo = () => (
-  <div>
+const Demo = () => {
+  useEffect(() => {
+    start();
+  }, []);
+  return (<div>
     locking: <input type="checkbox" ref={locking} defaultChecked />
     <br />
     scrollingX: <input type="checkbox" ref={scrollingX} defaultChecked />
@@ -87,39 +90,40 @@ const Demo = () => (
     <button id="destroy" onClick={destroy}>
       destroy
     </button>
-    <div
-      ref={container}
-      style={{
-        width: 500,
-        height: 302,
-        border: '1px solid green',
-        padding: 10,
-        overflow: 'hidden',
-        margin: '10px auto',
-        position: 'relative',
-        boxSizing: 'border-box',
-      }}
-    >
+    <div style={{ padding: 20 }}>
       <div
-        ref={content}
+        ref={container}
         style={{
-          height: 1000,
-          width: 1000,
-          boxSizing: 'border-box',
-          border: '1px solid red',
+          width: '300px',
+          height: 302,
+          border: '1px solid green',
+          padding: 10,
           overflow: 'hidden',
-          transformOrigin: 'left top',
           position: 'relative',
+          boxSizing: 'border-box',
         }}
       >
-        {getAnchor('lt')}
-        {getAnchor('lb')}
-        {getAnchor('rt')}
-        {getAnchor('rb')}
+        <div
+          ref={content}
+          style={{
+            height: 1000,
+            width: 1000,
+            boxSizing: 'border-box',
+            border: '1px solid red',
+            overflow: 'hidden',
+            transformOrigin: 'left top',
+            position: 'relative',
+          }}
+        >
+          {getAnchor('lt')}
+          {getAnchor('lb')}
+          {getAnchor('rt')}
+          {getAnchor('rb')}
+        </div>
       </div>
     </div>
-  </div>
-);
+  </div>);
+}
 
 Demo.story = 'demo';
 
