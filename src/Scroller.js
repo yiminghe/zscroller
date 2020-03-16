@@ -1222,9 +1222,9 @@ var members = {
 
       // Animate to grid when snapping is active, otherwise just fix out-of-boundary positions
       // fixed by yiminghe, in case call scrollingComplete twice
-      if (self.__didDecelerationComplete) {
-        self.options.scrollingComplete();
-      }
+      //if (self.__didDecelerationComplete) {
+      self.options.scrollingComplete();
+      //}
     };
 
     // Start animation and switch on flag

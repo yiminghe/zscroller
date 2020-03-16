@@ -1,79 +1,19 @@
 import Scroller from './Scroller';
+import {
+  isTouch,
+  TOUCH_START_EVENT,
+  TOUCH_END_EVENT,
+  TOUCH_CANCEL_EVENT,
+  preventDefault,
+  setTransform,
+  iOSWebViewFix,
+  addEventListener,
+  deltaX,
+  deltaY,
+  willNotPreventDefault,
+} from './utils';
 
 const MIN_INDICATOR_SIZE = 8;
-let win: any = typeof window !== 'undefined' ? window : undefined;
-
-if (!win) {
-  win = typeof global !== 'undefined' ? global : {};
-}
-
-const isTouch = 'ontouchstart' in win;
-
-function setTransform(nodeStyle, value) {
-  nodeStyle.transform = value;
-  nodeStyle.webkitTransform = value;
-  nodeStyle.MozTransform = value;
-}
-
-let supportsPassive = false;
-try {
-  const opts = Object.defineProperty({}, 'passive', {
-    get() {
-      supportsPassive = true;
-    },
-  });
-  win.addEventListener('test', null, opts);
-} catch (e) {
-  // empty
-}
-
-function preventDefault(e) {
-  if (!supportsPassive) {
-    preventDefault(e);
-  }
-}
-
-const isWebView =
-  typeof navigator !== 'undefined' &&
-  /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(navigator.userAgent);
-
-function iOSWebViewFix(e, touchendFn) {
-  // https://github.com/ant-design/ant-design-mobile/issues/573#issuecomment-339560829
-  // iOS UIWebView issue, It seems no problem in WKWebView
-  if (isWebView && e.changedTouches[0].clientY < 0) {
-    touchendFn(new Event('touchend') || e);
-  }
-}
-
-const willNotPreventDefault = supportsPassive ? { passive: true } : false;
-
-function addEventListener(target, type, fn, _options = willNotPreventDefault) {
-  target.addEventListener(type, fn, _options);
-  return () => {
-    target.removeEventListener(type, fn, _options);
-  };
-}
-
-function deltaX(event) {
-  return 'deltaX' in event
-    ? event.deltaX
-    : // Fallback to `wheelDeltaX` for Webkit and normalize (right is positive).
-    'wheelDeltaX' in event
-      ? -event.wheelDeltaX
-      : 0;
-}
-
-function deltaY(event) {
-  return 'deltaY' in event
-    ? event.deltaY
-    : // Fallback to `wheelDeltaY` for Webkit and normalize (down is positive).
-    'wheelDeltaY' in event
-      ? -event.wheelDeltaY
-      : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
-      'wheelDelta' in event
-        ? -event.wheelDelta
-        : 0;
-}
 
 interface ViewportSize {
   width: number;
@@ -398,44 +338,58 @@ class ZScroller {
     const { _scroller: scroller } = this;
 
     if (container) {
+      const onTouchStart = (container, touches, timeStamp) => {
+        // Don't react if initial down happens on a form element
+        if (
+          (container && container.tagName.match(/input|textarea|select/i)) ||
+          this._disabled
+        ) {
+          return;
+        }
+        this._clearScrollbarTimer();
+        this._insideUserEvent = true;
+        scroller.doTouchStart(touches, timeStamp);
+      };
+
       this._bindEvent(
         container,
-        'touchstart',
+        TOUCH_START_EVENT,
         e => {
-          // Don't react if initial down happens on a form element
-          if (
-            (e.touches[0] &&
-              e.touches[0].container &&
-              e.touches[0].container.tagName.match(/input|textarea|select/i)) ||
-            this._disabled
-          ) {
-            return;
+          if (e.touches) {
+            onTouchStart(
+              e.touches[0] && e.touches[0].container,
+              e.touches,
+              e.timeStamp,
+            );
+          } else {
+            onTouchStart(e.target, [e], e.timeStamp);
           }
-          this._clearScrollbarTimer();
-          this._insideUserEvent = true;
-          scroller.doTouchStart(e.touches, e.timeStamp);
         },
         willNotPreventDefault,
       );
 
       const onTouchEnd = e => {
-        scroller.doTouchEnd(e.timeStamp);
         this._insideUserEvent = false;
+        scroller.doTouchEnd(e.timeStamp);
+      };
+
+      const onTouchMove = (e, touches) => {
+        e.preventDefault();
+        scroller.doTouchMove(touches, e.timeStamp);
+        iOSWebViewFix(e, onTouchEnd);
       };
 
       this._bindEvent(
         container,
         'touchmove',
         e => {
-          e.preventDefault();
-          scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
-          iOSWebViewFix(e, onTouchEnd);
+          onTouchMove(e, e.touches);
         },
         false,
       );
 
-      this._bindEvent(container, 'touchend', onTouchEnd);
-      this._bindEvent(container, 'touchcancel', onTouchEnd);
+      this._bindEvent(container, TOUCH_END_EVENT, onTouchEnd);
+      this._bindEvent(container, TOUCH_CANCEL_EVENT, onTouchEnd);
 
       this._bindEvent(
         container,
@@ -511,7 +465,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-        this._initPagePos.left,
+          this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -519,7 +473,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-        this._initPagePos.top,
+          this._initPagePos.top,
         false,
       );
     }
