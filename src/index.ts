@@ -338,58 +338,60 @@ class ZScroller {
     const { _scroller: scroller } = this;
 
     if (container) {
-      const onTouchStart = (container, touches, timeStamp) => {
-        // Don't react if initial down happens on a form element
-        if (
-          (container && container.tagName.match(/input|textarea|select/i)) ||
-          this._disabled
-        ) {
-          return;
-        }
-        this._clearScrollbarTimer();
-        this._insideUserEvent = true;
-        scroller.doTouchStart(touches, timeStamp);
-      };
-
-      this._bindEvent(
-        container,
-        TOUCH_START_EVENT,
-        e => {
-          if (e.touches) {
-            onTouchStart(
-              e.touches[0] && e.touches[0].container,
-              e.touches,
-              e.timeStamp,
-            );
-          } else {
-            onTouchStart(e.target, [e], e.timeStamp);
+      if (isTouch) {
+        const onTouchStart = (container, touches, timeStamp) => {
+          // Don't react if initial down happens on a form element
+          if (
+            (container && container.tagName.match(/input|textarea|select/i)) ||
+            this._disabled
+          ) {
+            return;
           }
-        },
-        willNotPreventDefault,
-      );
+          this._clearScrollbarTimer();
+          this._insideUserEvent = true;
+          scroller.doTouchStart(touches, timeStamp);
+        };
 
-      const onTouchEnd = e => {
-        this._insideUserEvent = false;
-        scroller.doTouchEnd(e.timeStamp);
-      };
+        this._bindEvent(
+          container,
+          TOUCH_START_EVENT,
+          e => {
+            if (e.touches) {
+              onTouchStart(
+                e.touches[0] && e.touches[0].container,
+                e.touches,
+                e.timeStamp,
+              );
+            } else {
+              onTouchStart(e.target, [e], e.timeStamp);
+            }
+          },
+          willNotPreventDefault,
+        );
 
-      const onTouchMove = (e, touches) => {
-        e.preventDefault();
-        scroller.doTouchMove(touches, e.timeStamp);
-        iOSWebViewFix(e, onTouchEnd);
-      };
+        const onTouchEnd = e => {
+          this._insideUserEvent = false;
+          scroller.doTouchEnd(e.timeStamp);
+        };
 
-      this._bindEvent(
-        container,
-        'touchmove',
-        e => {
-          onTouchMove(e, e.touches);
-        },
-        false,
-      );
+        const onTouchMove = (e, touches) => {
+          e.preventDefault();
+          scroller.doTouchMove(touches, e.timeStamp);
+          iOSWebViewFix(e, onTouchEnd);
+        };
 
-      this._bindEvent(container, TOUCH_END_EVENT, onTouchEnd);
-      this._bindEvent(container, TOUCH_CANCEL_EVENT, onTouchEnd);
+        this._bindEvent(
+          container,
+          'touchmove',
+          e => {
+            onTouchMove(e, e.touches);
+          },
+          false,
+        );
+
+        this._bindEvent(container, TOUCH_END_EVENT, onTouchEnd);
+        this._bindEvent(container, TOUCH_CANCEL_EVENT, onTouchEnd);
+      }
 
       this._bindEvent(
         container,
