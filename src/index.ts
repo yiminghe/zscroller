@@ -15,17 +15,17 @@ import {
 
 const MIN_INDICATOR_SIZE = 8;
 
-interface ViewportSize {
+interface IViewportSize {
   width: number;
   height: number;
 }
 
-interface ContentSize {
+interface IContentSize {
   width: number;
   height: number;
 }
 
-interface XY {
+interface IXY {
   width?: number;
   height?: number;
   scrollbar?: {
@@ -38,14 +38,14 @@ interface XY {
   };
 }
 
-type X = XY & { width: number };
+type X = IXY & { width: number };
 
-type Y = XY & { height: number };
+type Y = IXY & { height: number };
 
-interface ZScrollerOption {
+interface IZScrollerOption {
   locking?: boolean;
-  viewport: ViewportSize;
-  content: ContentSize;
+  viewport: IViewportSize;
+  content: IContentSize;
   x?: X;
   y?: Y;
   container?: HTMLElement;
@@ -56,7 +56,7 @@ interface ZScrollerOption {
 class ZScroller {
   private _ratio: { x?: number; y?: number };
   private _containerMouseDownTimer: any;
-  private _options: ZScrollerOption;
+  private _options: IZScrollerOption;
   private _zOptions: any;
   private _destroyed: boolean;
   private _timer: any;
@@ -76,7 +76,7 @@ class ZScroller {
     left: number;
     top: number;
   };
-  constructor(_options: ZScrollerOption) {
+  constructor(_options: IZScrollerOption) {
     const {
       container,
       viewport,
@@ -286,8 +286,8 @@ class ZScroller {
     x,
     y,
   }: {
-    viewport?: ViewportSize;
-    content?: ContentSize;
+    viewport?: IViewportSize;
+    content?: IContentSize;
     x?: X;
     y?: Y;
   } = {}) {
