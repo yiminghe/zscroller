@@ -393,9 +393,10 @@ class ZScroller {
         this._bindEvent(container, TOUCH_CANCEL_EVENT, onTouchEnd);
       }
 
+      // prevent Horizontal Scrolling by default
       this._bindEvent(
         container,
-        'wheel',
+        'mousewheel',
         e => {
           this._insideUserEvent = true;
           this._onContainerMouseWheel(e);
@@ -493,6 +494,9 @@ class ZScroller {
   _onContainerMouseWheel(e: any) {
     this._scroller.scrollBy(deltaX(e), deltaY(e), false);
     preventDefault(e);
+    if (e.wheelDeltaX !== 0) {
+      e.stopPropagation();
+    }
   }
 
   _onScrollbarMouseDown(e, type) {
