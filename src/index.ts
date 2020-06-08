@@ -493,7 +493,7 @@ class ZScroller {
 
   _onContainerMouseWheel(e: any) {
     this._scroller.scrollBy(deltaX(e), deltaY(e), false);
-    preventDefault(e);
+    e.preventDefault();
     if (e.wheelDeltaX !== 0) {
       e.stopPropagation();
     }

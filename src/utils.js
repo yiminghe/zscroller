@@ -59,7 +59,7 @@ try {
 
 export function preventDefault(e) {
   if (!supportsPassive) {
-    preventDefault(e);
+    e.preventDefault();
   }
 }
 
