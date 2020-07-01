@@ -70,6 +70,7 @@ class ZScroller {
   private _eventHandlers: any[];
   private __onIndicatorStartMouseMoving: boolean;
   private _insideUserEvent: boolean;
+  private _scrollbarsDisplay: any;
   private _initPagePos: {
     pageX: number;
     pageY: number;
@@ -123,25 +124,33 @@ class ZScroller {
     indicatorsPos = this._indicatorsPos = {};
     this._scrollbarsOpacity = {};
 
+    this._scrollbarsDisplay = {
+      x: '',
+      y: '',
+    };
+
     ['x', 'y'].forEach(k => {
       const optionName = k === 'x' ? 'scrollingX' : 'scrollingY';
       const scrollerStyle = k === 'x' ? x : y;
       if (this._options[optionName] !== false) {
-        scrollbars[k] = document.createElement('div');
-        scrollbars[k].className = `zscroller-scrollbar-${k}`;
+        const bar = (scrollbars[k] = document.createElement('div'));
+        if (!this._isShowScroll(k)) {
+          this._setScrollBarDisplay(k, 'none');
+        }
+        bar.className = `zscroller-scrollbar-${k}`;
         if (scrollerStyle.scrollbar) {
           if (scrollerStyle.scrollbar.style) {
-            Object.assign(scrollbars[k].style, scrollerStyle.scrollbar.style);
+            Object.assign(bar.style, scrollerStyle.scrollbar.style);
           }
           if (scrollerStyle.scrollbar.className) {
-            scrollbars[k].className += ' ' + scrollerStyle.scrollbar.className;
+            bar.className += ' ' + scrollerStyle.scrollbar.className;
           }
         }
         if (scrollerStyle.width) {
-          scrollbars[k].style.width = scrollerStyle.width + 'px';
+          bar.style.width = scrollerStyle.width + 'px';
         }
         if (scrollerStyle.height) {
-          scrollbars[k].style.height = scrollerStyle.height + 'px';
+          bar.style.height = scrollerStyle.height + 'px';
         }
         indicators[k] = document.createElement('div');
         indicators[k].className = `zscroller-indicator-${k}`;
@@ -153,7 +162,7 @@ class ZScroller {
             indicators[k].className += ' ' + scrollerStyle.indicator.className;
           }
         }
-        scrollbars[k].appendChild(indicators[k]);
+        bar.appendChild(indicators[k]);
         indicatorsSize[k] = -1;
         this._setScrollbarOpacity(k, 0);
         indicatorsPos[k] = 0;
@@ -181,6 +190,13 @@ class ZScroller {
     }
   }
 
+  _isShowScroll(prop: string) {
+    const { content, viewport } = this._options;
+    return prop === 'x'
+      ? content.width && viewport.width
+      : content.height && viewport.height;
+  }
+
   _adjustScrollBar() {
     const _options = this._options;
     const scrollbars = this._scrollbars;
@@ -188,41 +204,73 @@ class ZScroller {
     if (scrollbars) {
       ['x', 'y'].forEach(k => {
         if (scrollbars[k]) {
-          const pos =
-            k === 'x'
-              ? this._scroller.__scrollLeft
-              : this._scroller.__scrollTop;
-          const scrollerSize = k === 'x' ? x.width : y.height;
-          const viewportSize =
-            k === 'x' ? _options.viewport.width : _options.viewport.height;
-          const contentSize =
-            k === 'x' ? _options.content.width : _options.content.height;
-          if (viewportSize >= contentSize) {
-            this._setScrollbarOpacity(k, 0);
-          } else {
-            this._setScrollbarOpacity(k, 1);
-            const normalIndicatorSize =
-              (viewportSize / contentSize) * scrollerSize;
-            let size = normalIndicatorSize;
-            let indicatorPos;
-            if (pos < 0) {
-              size = Math.max(normalIndicatorSize + pos, MIN_INDICATOR_SIZE);
-              indicatorPos = 0;
-            } else if (pos > contentSize - viewportSize) {
-              size = Math.max(
-                normalIndicatorSize + contentSize - viewportSize - pos,
-                MIN_INDICATOR_SIZE,
-              );
-              indicatorPos = scrollerSize - size;
+          if (this._isShowScroll(k)) {
+            this._setScrollBarDisplay(k, '');
+            const pos =
+              k === 'x'
+                ? this._scroller.__scrollLeft
+                : this._scroller.__scrollTop;
+            const scrollerSize = k === 'x' ? x.width : y.height;
+            const viewportSize =
+              k === 'x' ? _options.viewport.width : _options.viewport.height;
+            const contentSize =
+              k === 'x' ? _options.content.width : _options.content.height;
+            if (viewportSize >= contentSize) {
+              this._setScrollbarOpacity(k, 0);
             } else {
-              indicatorPos = (pos / contentSize) * scrollerSize;
+              this._setScrollbarOpacity(k, 1);
+              const normalIndicatorSize =
+                (viewportSize / contentSize) * scrollerSize;
+              let size = normalIndicatorSize;
+              let indicatorPos;
+              if (pos < 0) {
+                size = Math.max(normalIndicatorSize + pos, MIN_INDICATOR_SIZE);
+                indicatorPos = 0;
+              } else if (pos > contentSize - viewportSize) {
+                size = Math.max(
+                  normalIndicatorSize + contentSize - viewportSize - pos,
+                  MIN_INDICATOR_SIZE,
+                );
+                indicatorPos = scrollerSize - size;
+              } else {
+                indicatorPos = (pos / contentSize) * scrollerSize;
+              }
+              this._setIndicatorSize(k, size);
+              this._setIndicatorPos(k, indicatorPos);
             }
-            this._setIndicatorSize(k, size);
-            this._setIndicatorPos(k, indicatorPos);
+          } else {
+            this._setScrollBarDisplay(k, 'none');
           }
         }
       });
     }
+  }
+
+  _adjustScrollBarDisplay() {
+    let changed = false;
+    ['x', 'y'].forEach(p => {
+      if (this._isShowScroll(p)) {
+        changed = changed || this._setScrollBarDisplay(p, '');
+      } else {
+        this._setScrollBarDisplay(p, 'none');
+      }
+    });
+    if (changed) {
+      this._adjustScrollBar();
+    }
+  }
+
+  _setScrollBarDisplay(prop: string, value: string) {
+    const bar = this._scrollbars[prop];
+    const scrollbarsVisible = this._scrollbarsDisplay;
+    if (bar) {
+      if (value !== scrollbarsVisible[prop]) {
+        bar.style.display = value;
+        scrollbarsVisible[prop] = value;
+        return true;
+      }
+    }
+    return false;
   }
 
   getScrollPosition() {
@@ -296,6 +344,9 @@ class ZScroller {
     Object.assign(_options.y, y);
     Object.assign(_options.content, content);
     Object.assign(_options.viewport, viewport);
+
+    this._adjustScrollBarDisplay();
+
     // set the right scroller dimensions
     scroller.setDimensions(
       _options.viewport.width,
@@ -492,7 +543,18 @@ class ZScroller {
   }
 
   _onContainerMouseWheel(e: any) {
-    this._scroller.scrollBy(deltaX(e), deltaY(e), false);
+    const deltaXValue = deltaX(e);
+    const deltaYValue = deltaY(e);
+    if (!deltaXValue && !deltaYValue) {
+      return;
+    }
+    if (!deltaXValue && !this._isShowScroll('y')) {
+      return;
+    }
+    if (!deltaYValue && !this._isShowScroll('x')) {
+      return;
+    }
+    this._scroller.scrollBy(deltaXValue, deltaYValue, false);
     e.preventDefault();
     if (e.wheelDeltaX !== 0) {
       e.stopPropagation();
