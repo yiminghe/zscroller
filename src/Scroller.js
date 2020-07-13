@@ -55,10 +55,10 @@ Scroller = function(callback, options) {
     zooming: false,
 
     /** Minimum zoom level */
-    minZoom: 0.5,
+    minZoom: 0.1,
 
     /** Maximum zoom level */
-    maxZoom: 3,
+    maxZoom: 10,
 
     /** Multiply or decrease scrolling speed **/
     speedMultiplier: 1,

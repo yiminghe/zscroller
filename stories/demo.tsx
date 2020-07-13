@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ZScroller from '../src';
 import '../assets/index.css';
 import { storiesOf } from '@storybook/react';
@@ -15,9 +15,14 @@ const contentWidth = React.createRef();
 const viewportHeight = React.createRef();
 const viewportWidth = React.createRef();
 
+const scaleValue = React.createRef();
+const leftValue = React.createRef();
+const topValue = React.createRef();
+
 function start(e?) {
   (document.getElementById('start') as any).disabled = true;
   zscroller = new ZScroller({
+    zooming: true,
     container: container.current,
     viewport: {
       height: container.current.clientHeight - 20, // padding
@@ -41,6 +46,7 @@ function start(e?) {
       : undefined,
 
     onScroll(left, top) {
+      console.log('onScroll', left, top);
       content.current.style.transform = `translate3d(${-left}px,${-top}px,0)`;
       content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
     },
@@ -70,6 +76,26 @@ function resize() {
   }
 }
 
+function scale() {
+  if (zscroller) {
+    const c_scale = parseInt(scaleValue.current.value, 10);
+    console.log('scaleTo',c_scale);
+    forceUpdate();
+    // zscroller.setDimensions({
+    //   content: {
+    //     width: parseInt(contentWidth.current.value, 10)*c_scale,
+    //     height: parseInt(contentHeight.current.value, 10)*c_scale,
+    //   },
+    // });
+    zscroller.zoomTo(
+      c_scale,
+      false,
+      parseInt(leftValue.current.value, 10),
+      parseInt(topValue.current.value, 10),
+    );
+  }
+}
+
 function getAnchor(a) {
   const style: any = {
     position: 'absolute',
@@ -93,10 +119,24 @@ function getAnchor(a) {
   return <div style={style}>{a}</div>;
 }
 
+let forceUpdate;
+
 const Demo = () => {
   useEffect(() => {
     start();
   }, []);
+
+  const [_, setR] = useState(0);
+
+  forceUpdate = () => {
+    setR(Math.random());
+  };
+
+  const c_scale = parseInt(
+    (scaleValue.current && scaleValue.current.value) || 1,
+    10,
+  );
+
   return (
     <div>
       <div>
@@ -123,9 +163,17 @@ const Demo = () => {
           viewport size:{' '}
           <input id="viewport-width" ref={viewportWidth} defaultValue={200} /> X
           <input id="viewport-height" ref={viewportHeight} defaultValue={200} />
+          <br />
+          scale: <input ref={scaleValue} defaultValue={2} /> -
+          <input ref={leftValue} defaultValue={0} /> -
+          <input ref={topValue} defaultValue={0} /> X
         </div>
         <button id="resize" onClick={resize}>
           resize
+        </button>
+        &nbsp;
+        <button id="scale" onClick={scale}>
+          scale
         </button>
       </div>
       <div style={{ padding: 20 }}>
@@ -144,8 +192,8 @@ const Demo = () => {
           <div
             ref={content}
             style={{
-              height: 1000,
-              width: 1000,
+              height: 1000 * c_scale,
+              width: 1000 * c_scale,
               boxSizing: 'border-box',
               border: '1px solid red',
               overflow: 'hidden',
@@ -153,6 +201,16 @@ const Demo = () => {
               position: 'relative',
             }}
           >
+            <div
+              style={{
+                position: 'absolute',
+                top: 100 * c_scale,
+                left: 100 * c_scale,
+                width: 100 * c_scale,
+                height: 100 * c_scale,
+                background: 'yellow',
+              }}
+            ></div>
             {getAnchor('lt')}
             {getAnchor('lb')}
             {getAnchor('rt')}

@@ -43,6 +43,9 @@ type X = IXY & { width: number };
 type Y = IXY & { height: number };
 
 interface IZScrollerOption {
+  minZoom?: number;
+  maxZoom?: number;
+  zooming?: boolean;
   locking?: boolean;
   viewport: IViewportSize;
   content: IContentSize;
@@ -214,7 +217,7 @@ class ZScroller {
             const viewportSize =
               k === 'x' ? _options.viewport.width : _options.viewport.height;
             const contentSize =
-              k === 'x' ? _options.content.width : _options.content.height;
+              k === 'x' ? _options.content.width * this._scroller.__zoomLevel : _options.content.height * this._scroller.__zoomLevel;
             if (viewportSize >= contentSize) {
               this._setScrollbarOpacity(k, 0);
             } else {
@@ -492,6 +495,38 @@ class ZScroller {
     });
   }
 
+  zoomTo(
+    level: number,
+    animate: boolean,
+    originLeft: number,
+    originTop: number,
+    callback: Function,
+  ) {
+    return this._scroller.zoomTo(
+      level,
+      animate,
+      originLeft,
+      originTop,
+      callback,
+    );
+  }
+
+  zoomBy(
+    factor: number,
+    animate: boolean,
+    originLeft: number,
+    originTop: number,
+    callback: Function,
+  ) {
+    return this._scroller.zoomBy(
+      factor,
+      animate,
+      originLeft,
+      originTop,
+      callback,
+    );
+  }
+
   scrollTo(x: number, y: number, animate: boolean): void {
     return this._scroller.scrollTo(x, y, animate);
   }
@@ -519,7 +554,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -527,7 +562,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }
