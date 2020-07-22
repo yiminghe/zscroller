@@ -181,10 +181,10 @@ class ZScroller {
 
     // create Scroller instance
     this._scroller = new Scroller((left, top, zoom) => {
+      this._adjustScrollBar();
       if (_options.onScroll) {
         _options.onScroll(left, top, zoom);
       }
-      this._adjustScrollBar();
     }, this._zOptions);
 
     this._eventHandlers = [];
