@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import ZScroller from '../src';
 import '../assets/index.css';
 import { storiesOf } from '@storybook/react';
@@ -19,29 +19,30 @@ const scaleValue = React.createRef();
 const leftValue = React.createRef();
 const topValue = React.createRef();
 
-function start(e?) {
+function start() {
   (document.getElementById('start') as any).disabled = true;
-  zscroller = new ZScroller({
+  const props = {
     zooming: true,
+    //minIndicatorSize:100,
     container: container.current,
     viewport: {
-      height: container.current.clientHeight - 20, // padding
-      width: container.current.clientWidth - 20,
+      height: parseInt(viewportHeight.current.value), // padding
+      width: parseInt(viewportWidth.current.value),
     },
     content: {
-      width: content.current.offsetWidth,
-      height: content.current.offsetHeight,
+      width: parseInt(contentWidth.current.value),
+      height: parseInt(contentHeight.current.value),
     },
     locking: locking.current.checked,
 
     x: scrollingX.current.checked
       ? {
-          width: container.current.clientWidth - 4,
+          width: parseInt(viewportWidth.current.value) - 12,
         }
       : undefined,
     y: scrollingY.current.checked
       ? {
-          height: container.current.clientHeight - 4, // padding
+          height: parseInt(viewportHeight.current.value) - 12, // padding
         }
       : undefined,
 
@@ -50,7 +51,9 @@ function start(e?) {
       content.current.style.transform = `translate3d(${-left}px,${-top}px,0)`;
       content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
     },
-  });
+  };
+  console.log('props', props);
+  zscroller = new ZScroller(props);
   container.current.appendChild(zscroller.getScrollbar('x'));
   container.current.appendChild(zscroller.getScrollbar('y'));
 }
@@ -63,6 +66,7 @@ function destroy() {
 
 function resize() {
   if (zscroller) {
+    forceUpdate();
     zscroller.setDimensions({
       content: {
         width: parseInt(contentWidth.current.value, 10),
@@ -79,7 +83,7 @@ function resize() {
 function scale() {
   if (zscroller) {
     const c_scale = parseInt(scaleValue.current.value, 10);
-    console.log('scaleTo',c_scale);
+    console.log('scaleTo', c_scale);
     forceUpdate();
     // zscroller.setDimensions({
     //   content: {
@@ -122,8 +126,14 @@ function getAnchor(a) {
 let forceUpdate;
 
 const Demo = () => {
+  useLayoutEffect(() => {
+    forceUpdate();
+  }, []);
+
   useEffect(() => {
-    start();
+    setTimeout(() => {
+      start();
+    }, 100);
   }, []);
 
   const [_, setR] = useState(0);
@@ -164,7 +174,7 @@ const Demo = () => {
           <input id="viewport-width" ref={viewportWidth} defaultValue={200} /> X
           <input id="viewport-height" ref={viewportHeight} defaultValue={200} />
           <br />
-          scale: <input ref={scaleValue} defaultValue={2} /> -
+          scale: <input ref={scaleValue} defaultValue={1} /> -
           <input ref={leftValue} defaultValue={0} /> -
           <input ref={topValue} defaultValue={0} /> X
         </div>
@@ -176,48 +186,50 @@ const Demo = () => {
           scale
         </button>
       </div>
-      <div style={{ padding: 20 }}>
-        <div
-          ref={container}
-          style={{
-            width: '300px',
-            height: 302,
-            border: '1px solid green',
-            padding: 10,
-            overflow: 'hidden',
-            position: 'relative',
-            boxSizing: 'border-box',
-          }}
-        >
+      {contentWidth.current ? (
+        <div style={{ padding: 20 }}>
           <div
-            ref={content}
+            ref={container}
             style={{
-              height: 1000 * c_scale,
-              width: 1000 * c_scale,
-              boxSizing: 'border-box',
-              border: '1px solid red',
+              width: parseInt(viewportWidth.current.value),
+              height: parseInt(viewportHeight.current.value),
+              border: '1px solid green',
+              padding: 10,
               overflow: 'hidden',
-              transformOrigin: 'left top',
               position: 'relative',
+              boxSizing: 'border-box',
             }}
           >
             <div
+              ref={content}
               style={{
-                position: 'absolute',
-                top: 100 * c_scale,
-                left: 100 * c_scale,
-                width: 100 * c_scale,
-                height: 100 * c_scale,
-                background: 'yellow',
+                height: parseInt(contentHeight.current.value) * c_scale - 20,
+                width: parseInt(contentWidth.current.value) * c_scale - 20,
+                boxSizing: 'border-box',
+                border: '1px solid red',
+                overflow: 'hidden',
+                transformOrigin: 'left top',
+                position: 'relative',
               }}
-            ></div>
-            {getAnchor('lt')}
-            {getAnchor('lb')}
-            {getAnchor('rt')}
-            {getAnchor('rb')}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 100 * c_scale,
+                  left: 100 * c_scale,
+                  width: 100 * c_scale,
+                  height: 100 * c_scale,
+                  background: 'yellow',
+                }}
+              ></div>
+              {getAnchor('lt')}
+              {getAnchor('lb')}
+              {getAnchor('rt')}
+              {getAnchor('rb')}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 };

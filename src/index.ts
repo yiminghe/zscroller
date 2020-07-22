@@ -13,8 +13,6 @@ import {
   willNotPreventDefault,
 } from './utils';
 
-const MIN_INDICATOR_SIZE = 8;
-
 interface IViewportSize {
   width: number;
   height: number;
@@ -45,6 +43,7 @@ type Y = IXY & { height: number };
 interface IZScrollerOption {
   minZoom?: number;
   maxZoom?: number;
+  minIndicatorSize?: number;
   zooming?: boolean;
   locking?: boolean;
   viewport: IViewportSize;
@@ -56,8 +55,11 @@ interface IZScrollerOption {
   onScroll?: (left: number, top: number, zoom: number) => any;
 }
 
+const SPRING_MIN_INDICATOR_SIZE = 8;
+
+type XY = { x?: number; y?: number };
+
 class ZScroller {
-  private _ratio: { x?: number; y?: number };
   private _containerMouseDownTimer: any;
   private _options: IZScrollerOption;
   private _zOptions: any;
@@ -74,11 +76,13 @@ class ZScroller {
   private __onIndicatorStartMouseMoving: boolean;
   private _insideUserEvent: boolean;
   private _scrollbarsDisplay: any;
+  private _minIndicatorSize: number;
   private _initPagePos: {
     pageX: number;
     pageY: number;
     left: number;
     top: number;
+    ratio: XY;
   };
   constructor(_options: IZScrollerOption) {
     const {
@@ -88,12 +92,15 @@ class ZScroller {
       onScroll,
       x,
       y,
+      minIndicatorSize,
       ...zOptions
     } = _options;
     let scrollbars;
     let indicators;
     let indicatorsSize;
     let indicatorsPos;
+
+    this._minIndicatorSize = minIndicatorSize || 25;
 
     this._options = _options;
 
@@ -200,6 +207,14 @@ class ZScroller {
       : content.height && viewport.height;
   }
 
+  _getZoomedContentWidth() {
+    return this._options.content.width * this._scroller.__zoomLevel;
+  }
+
+  _getZoomedContentHeight() {
+    return this._options.content.height * this._scroller.__zoomLevel;
+  }
+
   _adjustScrollBar() {
     const _options = this._options;
     const scrollbars = this._scrollbars;
@@ -218,8 +233,8 @@ class ZScroller {
               k === 'x' ? _options.viewport.width : _options.viewport.height;
             const contentSize =
               k === 'x'
-                ? _options.content.width * this._scroller.__zoomLevel
-                : _options.content.height * this._scroller.__zoomLevel;
+                ? this._getZoomedContentWidth()
+                : this._getZoomedContentHeight();
             if (viewportSize >= contentSize) {
               this._setScrollbarOpacity(k, 0);
             } else {
@@ -229,16 +244,22 @@ class ZScroller {
               let size = normalIndicatorSize;
               let indicatorPos;
               if (pos < 0) {
-                size = Math.max(normalIndicatorSize + pos, MIN_INDICATOR_SIZE);
+                size = Math.max(
+                  normalIndicatorSize + pos,
+                  SPRING_MIN_INDICATOR_SIZE,
+                );
                 indicatorPos = 0;
               } else if (pos > contentSize - viewportSize) {
                 size = Math.max(
                   normalIndicatorSize + contentSize - viewportSize - pos,
-                  MIN_INDICATOR_SIZE,
+                  SPRING_MIN_INDICATOR_SIZE,
                 );
                 indicatorPos = scrollerSize - size;
               } else {
-                indicatorPos = (pos / contentSize) * scrollerSize;
+                size = Math.max(size, this._minIndicatorSize);
+                indicatorPos =
+                  (pos / (contentSize - viewportSize)) * (scrollerSize - size);
+                indicatorPos = Math.min(indicatorPos, scrollerSize - size);
               }
               this._setIndicatorSize(k, size);
               this._setIndicatorPos(k, indicatorPos);
@@ -359,14 +380,24 @@ class ZScroller {
       _options.content.width,
       _options.content.height,
     );
-    this._ratio = {};
+  }
+
+  _getRatio() {
+    const ratio: XY = {};
+    const { _options, _indicatorsSize } = this;
     if (_options.x && _options.x.width) {
-      this._ratio.x = _options.content.width / _options.x.width;
+      ratio.x =
+        (this._getZoomedContentWidth() - _options.viewport.width) /
+        (_options.x.width - _indicatorsSize.x);
     }
     if (_options.y && _options.y.height) {
-      this._ratio.y = _options.content.height / _options.y.height;
+      ratio.y =
+        (this._getZoomedContentHeight() - _options.viewport.height) /
+        (_options.y.height - _indicatorsSize.y);
     }
+    return ratio;
   }
+
   destroy() {
     this._destroyed = true;
     this._unbindEvent();
@@ -543,6 +574,7 @@ class ZScroller {
       pageY: e.pageY,
       left: this._scroller.__scrollLeft,
       top: this._scroller.__scrollTop,
+      ratio: this._getRatio(),
     };
     preventDefault(e);
     e.stopPropagation();
@@ -555,7 +587,7 @@ class ZScroller {
     }
     if (type === 'x') {
       this._scroller.scrollTo(
-        (e.pageX - this._initPagePos.pageX) * this._ratio.x +
+        (e.pageX - this._initPagePos.pageX) * this._initPagePos.ratio.x +
           this._initPagePos.left,
         this._initPagePos.top,
         false,
@@ -563,7 +595,7 @@ class ZScroller {
     } else {
       this._scroller.scrollTo(
         this._initPagePos.left,
-        (e.pageY - this._initPagePos.pageY) * this._ratio.y +
+        (e.pageY - this._initPagePos.pageY) * this._initPagePos.ratio.y +
           this._initPagePos.top,
         false,
       );
@@ -602,6 +634,7 @@ class ZScroller {
     let init = true;
     const { pageX, pageY } = e;
     let offset = this._scrollbars[type].getBoundingClientRect();
+    let ratio = this._getRatio();
     offset = {
       left: offset.left,
       top: offset.top,
@@ -618,11 +651,9 @@ class ZScroller {
       return;
     }
     if (type === 'x') {
-      direction =
-        pageX - offset.left - this._scroller.__scrollLeft / this._ratio.x;
+      direction = pageX - offset.left - this._scroller.__scrollLeft / ratio.x;
     } else {
-      direction =
-        pageY - offset.top - this._scroller.__scrollTop / this._ratio.y;
+      direction = pageY - offset.top - this._scroller.__scrollTop / ratio.y;
     }
     if (direction) {
       direction = direction > 0 ? 1 : -1;
@@ -634,9 +665,9 @@ class ZScroller {
       ];
       const indicatorSize = this._indicatorsSize[type];
       if (type === 'x') {
-        pos = pageX - offset.left - scrollPosition / this._ratio.x;
+        pos = pageX - offset.left - scrollPosition / ratio.x;
       } else {
-        pos = pageY - offset.top - scrollPosition / this._ratio.y;
+        pos = pageY - offset.top - scrollPosition / ratio.y;
       }
       if (pos * direction < 0 || (pos >= 0 && pos < indicatorSize)) {
         this._endScroll();

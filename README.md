@@ -68,15 +68,19 @@ interface Y {
         style: any;
     };
 }
-interface ZScrollerOption {
-    locking?: boolean;
-    viewport: ViewportSize;
-    content: ContentSize;
-    x?: X;
-    y?: Y;
-    container?: HTMLElement;
-    scrollingComplete?: () => any;
-    onScroll?: (left: number, top: number, zoom: number) => any;
+interface IZScrollerOption {
+  minZoom?: number;
+  maxZoom?: number;
+  minIndicatorSize?: number;
+  zooming?: boolean;
+  locking?: boolean;
+  viewport: IViewportSize;
+  content: IContentSize;
+  x?: X;
+  y?: Y;
+  container?: HTMLElement;
+  scrollingComplete?: () => any;
+  onScroll?: (left: number, top: number, zoom: number) => any;
 }
 declare class ZScroller {
     constructor(_options: ZScrollerOption);
