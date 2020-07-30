@@ -68,6 +68,9 @@ interface Y {
         style: any;
     };
 }
+
+//  minZoom defaults to 0.1
+//  maxZoom defaults to 10
 interface IZScrollerOption {
   minZoom?: number;
   maxZoom?: number;

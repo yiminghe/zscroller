@@ -2,6 +2,14 @@ import React, { useEffect, useLayoutEffect, useState } from 'react';
 import ZScroller from '../src';
 import '../assets/index.css';
 import { storiesOf } from '@storybook/react';
+import NumericInput from 'react-numeric-input';
+
+const maxZoom = 10;
+const minZoom = 0.1;
+
+function constrainZoom(z) {
+  return Math.max(Math.min(maxZoom, z), minZoom);
+}
 
 let zscroller;
 const container = React.createRef();
@@ -15,7 +23,11 @@ const contentWidth = React.createRef();
 const viewportHeight = React.createRef();
 const viewportWidth = React.createRef();
 
-const scaleValue = React.createRef();
+const scaleValue: any = {
+  current: {
+    value: 1,
+  },
+};
 const leftValue = React.createRef();
 const topValue = React.createRef();
 
@@ -23,6 +35,8 @@ function start() {
   (document.getElementById('start') as any).disabled = true;
   const props = {
     zooming: true,
+    maxZoom,
+    minZoom,
     //minIndicatorSize:100,
     container: container.current,
     viewport: {
@@ -82,7 +96,7 @@ function resize() {
 
 function scale() {
   if (zscroller) {
-    const c_scale = parseInt(scaleValue.current.value, 10);
+    const c_scale = scaleValue.current.value;
     console.log('scaleTo', c_scale);
     forceUpdate();
     // zscroller.setDimensions({
@@ -142,10 +156,7 @@ const Demo = () => {
     setR(Math.random());
   };
 
-  const c_scale = parseInt(
-    (scaleValue.current && scaleValue.current.value) || 1,
-    10,
-  );
+  const c_scale = scaleValue.current.value;
 
   return (
     <div>
@@ -174,7 +185,17 @@ const Demo = () => {
           <input id="viewport-width" ref={viewportWidth} defaultValue={200} /> X
           <input id="viewport-height" ref={viewportHeight} defaultValue={200} />
           <br />
-          scale: <input ref={scaleValue} defaultValue={1} /> -
+          scale:{' '}
+          <NumericInput
+            onChange={v => {
+              scaleValue.current.value = constrainZoom(v);
+            }}
+            value={scaleValue.current.value}
+            max={10}
+            min={0.1}
+            step={0.1}
+          />{' '}
+          -
           <input ref={leftValue} defaultValue={0} /> -
           <input ref={topValue} defaultValue={0} /> X
         </div>

@@ -57,6 +57,7 @@
     "prettier": "^1.18.2",
     "react": "16.x",
     "react-dom": "16.x",
+    "react-numeric-input": "^2.2.3",
     "typescript": "^3.7.5"
   },
   "lint-staged": {
