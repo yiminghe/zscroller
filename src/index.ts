@@ -149,7 +149,7 @@ class ZScroller {
         if (!this._isShowScroll(k)) {
           this._setScrollBarDisplay(k, 'none');
         }
-        bar.className = `zscroller-scrollbar-${k}`;
+        bar.className = `zscroller-scrollbar zscroller-scrollbar-${k}`;
         if (scrollerStyle.scrollbar) {
           if (scrollerStyle.scrollbar.style) {
             Object.assign(bar.style, scrollerStyle.scrollbar.style);
@@ -518,7 +518,7 @@ class ZScroller {
 
     Object.keys(this._scrollbars).forEach(type => {
       const bar = this._scrollbars[type];
-      this._bindEvent(bar, 'mousedown', (e) => {
+      this._bindEvent(bar, 'mousedown', e => {
         if (e.button === 0) {
           this._insideUserEvent = true;
           this._onScrollbarMouseDown(e, type as Axis);
@@ -580,7 +580,7 @@ class ZScroller {
       top: this._scroller.__scrollTop,
       ratio: this._getRatio(),
     };
-    this._indicators[type].classList.add(`zscroller-indicator-active`);
+    this._indicators[type].classList.add(`zscroller-indicator-active`, `zscroller-indicator-${type}-active`);
     preventDefault(e);
     e.stopPropagation();
   }
@@ -611,7 +611,7 @@ class ZScroller {
 
   _onIndicatorMouseUp(e: MouseEvent, type: Axis) {
     this.__onIndicatorStartMouseMoving = false;
-    this._indicators[type].classList.remove(`zscroller-indicator-active`);
+    this._indicators[type].classList.remove(`zscroller-indicator-active`, `zscroller-indicator-${type}-active`);
     document.body.removeAttribute('unselectable');
     preventDefault(e);
     e.stopPropagation();
