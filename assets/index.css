@@ -15,11 +15,11 @@
   .zscroller-indicator-y {
     box-sizing: border-box;
     position: absolute;
-    border: 1px solid rgba(255, 255, 255, 0.901961);
-    border-radius: 3px;
+    border-color: #ababab;
+  background-color: #c9c9c9;
+  border-radius: 7px;
     width: 100%;
     display: block;
-    background: rgba(0, 0, 0, 0.498039);
   }
 
   .zscroller-scrollbar-x {
@@ -38,9 +38,14 @@
   .zscroller-indicator-x {
     box-sizing: border-box;
     position: absolute;
-    border: 1px solid rgba(255, 255, 255, 0.901961);
-    border-radius: 3px;
+    border-color: #ababab;
+    background-color: #c9c9c9;
+    border-radius: 7px;
     height: 100%;
     display: block;
-    background: rgba(0, 0, 0, 0.498039);
+  }
+
+  .zscroller-indicator:hover,.zscroller-indicator-active {
+    border-color: #ababab;
+    background: #969696;
   }

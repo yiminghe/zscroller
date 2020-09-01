@@ -36,6 +36,8 @@ interface IXY {
   };
 }
 
+type Axis = 'x' | 'y';
+
 type X = IXY & { width: number };
 
 type Y = IXY & { height: number };
@@ -65,11 +67,11 @@ class ZScroller {
   private _zOptions: any;
   private _destroyed: boolean;
   private _timer: any;
-  private _scrollbars: any;
-  private _indicators: any;
-  private _indicatorsSize: any;
-  private _indicatorsPos: any;
-  private _scrollbarsOpacity: any;
+  private _scrollbars: Record<Axis, HTMLElement>;
+  private _indicators: Record<Axis, HTMLElement>;
+  private _indicatorsSize: Record<Axis, number>;
+  private _indicatorsPos: Record<Axis, number>;
+  private _scrollbarsOpacity: Record<Axis, number>;
   private _scroller: any;
   private _disabled: boolean;
   private _eventHandlers: any[];
@@ -128,11 +130,11 @@ class ZScroller {
       },
     };
 
-    scrollbars = this._scrollbars = {};
-    indicators = this._indicators = {};
-    indicatorsSize = this._indicatorsSize = {};
-    indicatorsPos = this._indicatorsPos = {};
-    this._scrollbarsOpacity = {};
+    scrollbars = this._scrollbars = { x: null, y: null };
+    indicators = this._indicators = { x: null, y: null };
+    indicatorsSize = this._indicatorsSize = { x: -1, y: -1 };
+    indicatorsPos = this._indicatorsPos = { x: -1, y: -1 };
+    this._scrollbarsOpacity = { x: -1, y: -1 };
 
     this._scrollbarsDisplay = {
       x: '',
@@ -163,7 +165,9 @@ class ZScroller {
           bar.style.height = scrollerStyle.height + 'px';
         }
         indicators[k] = document.createElement('div');
-        indicators[k].className = `zscroller-indicator-${k}`;
+        indicators[
+          k
+        ].className = `zscroller-indicator zscroller-indicator-${k}`;
         if (scrollerStyle.indicator) {
           if (scrollerStyle.indicator.style) {
             Object.assign(indicators[k].style, scrollerStyle.indicator.style);
@@ -493,17 +497,17 @@ class ZScroller {
       );
     }
 
-    Object.keys(this._indicators).forEach(type => {
+    Object.keys(this._indicators).forEach((type: string) => {
       const indicator = this._indicators[type];
       this._bindEvent(indicator, 'mousedown', e => {
         if (e.button === 0) {
           this._insideUserEvent = true;
-          this._onIndicatorMouseDown(e);
+          this._onIndicatorMouseDown(e, type);
           let moveHandler = this._bindEvent(document, 'mousemove', e => {
-            this._onIndicatorMouseMove(e, type);
+            this._onIndicatorMouseMove(e, type as Axis);
           });
           let upHandler = this._bindEvent(document, 'mouseup', e => {
-            this._onIndicatorMouseUp(e);
+            this._onIndicatorMouseUp(e, type as Axis);
             moveHandler();
             upHandler();
             this._insideUserEvent = false;
@@ -514,10 +518,10 @@ class ZScroller {
 
     Object.keys(this._scrollbars).forEach(type => {
       const bar = this._scrollbars[type];
-      this._bindEvent(bar, 'mousedown', e => {
+      this._bindEvent(bar, 'mousedown', (e) => {
         if (e.button === 0) {
           this._insideUserEvent = true;
-          this._onScrollbarMouseDown(e, type);
+          this._onScrollbarMouseDown(e, type as Axis);
           let upHandler = this._bindEvent(document, 'mouseup', e => {
             this._onScrollbarMouseup(e);
             upHandler();
@@ -568,7 +572,7 @@ class ZScroller {
     return this._scroller.scrollBy(x, y, animate);
   }
 
-  _onIndicatorMouseDown(e) {
+  _onIndicatorMouseDown(e: MouseEvent, type: string) {
     this._initPagePos = {
       pageX: e.pageX,
       pageY: e.pageY,
@@ -576,11 +580,12 @@ class ZScroller {
       top: this._scroller.__scrollTop,
       ratio: this._getRatio(),
     };
+    this._indicators[type].classList.add(`zscroller-indicator-active`);
     preventDefault(e);
     e.stopPropagation();
   }
 
-  _onIndicatorMouseMove(e, type) {
+  _onIndicatorMouseMove(e: MouseEvent, type: Axis) {
     if (!this.__onIndicatorStartMouseMoving) {
       document.body.setAttribute('unselectable', 'on');
       this.__onIndicatorStartMouseMoving = true;
@@ -588,7 +593,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._initPagePos.ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -596,7 +601,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._initPagePos.ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }
@@ -604,8 +609,9 @@ class ZScroller {
     e.stopPropagation();
   }
 
-  _onIndicatorMouseUp(e) {
+  _onIndicatorMouseUp(e: MouseEvent, type: Axis) {
     this.__onIndicatorStartMouseMoving = false;
+    this._indicators[type].classList.remove(`zscroller-indicator-active`);
     document.body.removeAttribute('unselectable');
     preventDefault(e);
     e.stopPropagation();
@@ -630,14 +636,13 @@ class ZScroller {
     }
   }
 
-  _onScrollbarMouseDown(e, type) {
+  _onScrollbarMouseDown(e: MouseEvent, type: Axis) {
     let init = true;
     const { pageX, pageY } = e;
-    let offset = this._scrollbars[type].getBoundingClientRect();
+    const domRect = this._scrollbars[type].getBoundingClientRect();
     let ratio = this._getRatio();
-    offset = {
-      left: offset.left,
-      top: offset.top,
+    const offset = {
+      ...domRect,
     };
     offset.left += window.pageXOffset;
     offset.top += window.pageYOffset;

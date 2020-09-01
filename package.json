@@ -1,6 +1,6 @@
 {
   "name": "zscroller",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "dom scroller based on zynga scroller",
   "keywords": [
     "zynga scroller",
@@ -51,7 +51,7 @@
     "@storybook/storybook-deployer": "^2.8.1",
     "babel-loader": "^8.0.6",
     "lint-staged": "^9.2.1",
-    "pika-plugin-build-web-babel": "^0.7.0",
+    "pika-plugin-build-web-babel": "^0.10.0",
     "pika-plugin-clean-dist-src": "^0.1.1",
     "pre-commit": "1.x",
     "prettier": "^1.18.2",
