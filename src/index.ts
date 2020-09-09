@@ -642,7 +642,8 @@ class ZScroller {
     const domRect = this._scrollbars[type].getBoundingClientRect();
     let ratio = this._getRatio();
     const offset = {
-      ...domRect,
+      left: domRect.left,
+      top: domRect.top,
     };
     offset.left += window.pageXOffset;
     offset.top += window.pageYOffset;
