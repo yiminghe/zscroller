@@ -61,12 +61,12 @@ function start() {
       : undefined,
 
     onScroll(left, top) {
-      console.log('onScroll', left, top);
+      //console.log('onScroll', left, top);
       content.current.style.transform = `translate3d(${-left}px,${-top}px,0)`;
       content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
     },
   };
-  console.log('props', props);
+  //console.log('props', props);
   zscroller = new ZScroller(props);
   container.current.appendChild(zscroller.getScrollbar('x'));
   container.current.appendChild(zscroller.getScrollbar('y'));
@@ -97,7 +97,7 @@ function resize() {
 function scale() {
   if (zscroller) {
     const c_scale = scaleValue.current.value;
-    console.log('scaleTo', c_scale);
+    //console.log('scaleTo', c_scale);
     forceUpdate();
     // zscroller.setDimensions({
     //   content: {

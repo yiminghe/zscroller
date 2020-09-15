@@ -95,23 +95,70 @@ export function addEventListener(
   };
 }
 
+
+
+let globalBrowser;
+
+function getBrowser() {
+  if (globalBrowser) {
+    return globalBrowser;
+  }
+  const ua = navigator.userAgent.toLowerCase();
+  var match = /(chrome)[ \/]([\w.]+)/.exec(ua) || /(webkit)[ \/]([\w.]+)/.exec(ua) || /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) || /(msie) ([\w.]+)/.exec(ua) || ua.indexOf('compatible') < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua) || [];
+  const matched = {
+    browser: match[1] || '',
+    version: match[2] || '0'
+  };
+  globalBrowser = {};
+  if (matched.browser) {
+    globalBrowser[matched.browser] = true;
+    globalBrowser.version = matched.version;
+  }
+
+  if (ua.indexOf('macintosh') !== -1) {
+    globalBrowser.mac = true;
+  } else if (ua.indexOf('windows') !== -1) {
+    globalBrowser.win = true;
+  }
+
+  if (globalBrowser.chrome) {
+    globalBrowser.webkit = true;
+  } else if (globalBrowser.webkit) {
+    globalBrowser.safari = true;
+  }
+  return globalBrowser;
+}
+
+function getRatio() {
+  return getBrowser().safari ? 4 : 40;
+}
+
+function toDeltaInt(delta) {
+  if (getBrowser().win) {
+    delta /= 4;
+  }
+  return (delta >= 0 ? 1 : -1) * Math.floor(Math.abs(delta));
+}
+
 export function deltaX(event) {
-  return 'deltaX' in event
+  let delta = 'deltaX' in event
     ? event.deltaX
     : // Fallback to `wheelDeltaX` for Webkit and normalize (right is positive).
     'wheelDeltaX' in event
-    ? -event.wheelDeltaX
-    : 0;
+      ? -event.wheelDeltaX
+      : 0;
+  return toDeltaInt(delta);
 }
 
 export function deltaY(event) {
-  return 'deltaY' in event
+  let delta = 'deltaY' in event
     ? event.deltaY
     : // Fallback to `wheelDeltaY` for Webkit and normalize (down is positive).
     'wheelDeltaY' in event
-    ? -event.wheelDeltaY
-    : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
-    'wheelDelta' in event
-    ? -event.wheelDelta
-    : 0;
+      ? -event.wheelDeltaY
+      : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
+      'wheelDelta' in event
+        ? -event.wheelDelta
+        : 0;
+  return toDeltaInt(delta);
 }

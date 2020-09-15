@@ -514,7 +514,7 @@ class ZScroller {
             this._insideUserEvent = false;
           });
         }
-      });
+      }, false);
     });
 
     Object.keys(this._scrollbars).forEach(type => {
@@ -529,7 +529,7 @@ class ZScroller {
             this._insideUserEvent = false;
           });
         }
-      });
+      }, false);
     });
   }
 
@@ -585,7 +585,7 @@ class ZScroller {
       `zscroller-indicator-active`,
       `zscroller-indicator-${type}-active`,
     );
-    preventDefault(e);
+    e.preventDefault();
     e.stopPropagation();
   }
 
@@ -597,7 +597,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._initPagePos.ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -605,7 +605,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._initPagePos.ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }
@@ -712,7 +712,7 @@ class ZScroller {
       init = false;
     };
     doScroll();
-    preventDefault(e);
+    e.preventDefault();
   }
 
   _endScroll() {
