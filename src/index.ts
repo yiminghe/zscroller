@@ -47,6 +47,7 @@ interface IZScrollerOption {
   maxZoom?: number;
   minIndicatorSize?: number;
   zooming?: boolean;
+  // defaults to true
   locking?: boolean;
   viewport: IViewportSize;
   content: IContentSize;
@@ -580,7 +581,10 @@ class ZScroller {
       top: this._scroller.__scrollTop,
       ratio: this._getRatio(),
     };
-    this._indicators[type].classList.add(`zscroller-indicator-active`, `zscroller-indicator-${type}-active`);
+    this._indicators[type].classList.add(
+      `zscroller-indicator-active`,
+      `zscroller-indicator-${type}-active`,
+    );
     preventDefault(e);
     e.stopPropagation();
   }
@@ -593,7 +597,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._initPagePos.ratio.x +
-        this._initPagePos.left,
+          this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -601,7 +605,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._initPagePos.ratio.y +
-        this._initPagePos.top,
+          this._initPagePos.top,
         false,
       );
     }
@@ -611,15 +615,18 @@ class ZScroller {
 
   _onIndicatorMouseUp(e: MouseEvent, type: Axis) {
     this.__onIndicatorStartMouseMoving = false;
-    this._indicators[type].classList.remove(`zscroller-indicator-active`, `zscroller-indicator-${type}-active`);
+    this._indicators[type].classList.remove(
+      `zscroller-indicator-active`,
+      `zscroller-indicator-${type}-active`,
+    );
     document.body.removeAttribute('unselectable');
     preventDefault(e);
     e.stopPropagation();
   }
 
   _onContainerMouseWheel(e: any) {
-    const deltaXValue = deltaX(e);
-    const deltaYValue = deltaY(e);
+    let deltaXValue = deltaX(e);
+    let deltaYValue = deltaY(e);
     if (!deltaXValue && !deltaYValue) {
       return;
     }
@@ -628,6 +635,16 @@ class ZScroller {
     }
     if (!deltaYValue && !this._isShowScroll('x')) {
       return;
+    }
+    if (deltaXValue && deltaYValue && this._options.locking !== false) {
+      const distanceX = Math.abs(deltaXValue);
+      const distanceY = Math.abs(deltaYValue);
+      const radian = Math.atan2(distanceY, distanceX);
+      if (radian < Math.PI / 4) {
+        deltaYValue = 0;
+      } else {
+        deltaXValue = 0;
+      }
     }
     this._scroller.scrollBy(deltaXValue, deltaYValue, false);
     e.preventDefault();

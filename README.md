@@ -71,6 +71,7 @@ interface Y {
 
 //  minZoom defaults to 0.1
 //  maxZoom defaults to 10
+// locking defaults to true
 interface IZScrollerOption {
   minZoom?: number;
   maxZoom?: number;
