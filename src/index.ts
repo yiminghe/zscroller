@@ -48,6 +48,8 @@ interface IZScrollerOption {
   minIndicatorSize?: number;
   zooming?: boolean;
   // defaults to true
+  bouncing?: boolean;
+  // defaults to true
   locking?: boolean;
   viewport: IViewportSize;
   content: IContentSize;

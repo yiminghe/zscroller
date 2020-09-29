@@ -35,6 +35,7 @@ function start() {
   (document.getElementById('start') as any).disabled = true;
   const props = {
     zooming: true,
+    bouncing: false,
     maxZoom,
     minZoom,
     //minIndicatorSize:100,
@@ -51,13 +52,13 @@ function start() {
 
     x: scrollingX.current.checked
       ? {
-          width: parseInt(viewportWidth.current.value) - 12,
-        }
+        width: parseInt(viewportWidth.current.value) - 12,
+      }
       : undefined,
     y: scrollingY.current.checked
       ? {
-          height: parseInt(viewportHeight.current.value) - 12, // padding
-        }
+        height: parseInt(viewportHeight.current.value) - 12, // padding
+      }
       : undefined,
 
     onScroll(left, top) {
