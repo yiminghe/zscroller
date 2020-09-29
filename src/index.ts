@@ -70,6 +70,7 @@ class ZScroller {
   private _zOptions: any;
   private _destroyed: boolean;
   private _timer: any;
+  private _touchTimer: any;
   private _scrollbars: Record<Axis, HTMLElement>;
   private _indicators: Record<Axis, HTMLElement>;
   private _indicatorsSize: Record<Axis, number>;
@@ -123,11 +124,7 @@ class ZScroller {
             _options.scrollingComplete();
           }
           if (scrollbars && isTouch) {
-            ['x', 'y'].forEach(k => {
-              if (scrollbars[k]) {
-                this._setScrollbarOpacity(k, 0);
-              }
-            });
+            this.autoHideScrollbarForTouch();
           }
         }, 0);
       },
@@ -188,6 +185,7 @@ class ZScroller {
 
     // create Scroller instance
     this._scroller = new Scroller((left, top, zoom) => {
+      this.clearAutoHideScrollbarForTouchTimer();
       this._adjustScrollBar();
       if (_options.onScroll) {
         _options.onScroll(left, top, zoom);
@@ -205,6 +203,24 @@ class ZScroller {
       this._setScrollbarOpacity('x', 0);
       this._setScrollbarOpacity('y', 0);
     }
+  }
+
+  clearAutoHideScrollbarForTouchTimer() {
+    if (this._touchTimer) {
+      clearTimeout(this._touchTimer);
+      this._touchTimer = null;
+    }
+  }
+
+  autoHideScrollbarForTouch() {
+    this.clearAutoHideScrollbarForTouchTimer();
+    this._touchTimer = setTimeout(() => {
+      ['x', 'y'].forEach(k => {
+        if (this._scrollbars[k]) {
+          this._setScrollbarOpacity(k, 0);
+        }
+      });
+    }, 1500);
   }
 
   _isShowScroll(prop: string) {
