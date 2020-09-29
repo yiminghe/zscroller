@@ -10,7 +10,6 @@ import {
   addEventListener,
   deltaX,
   deltaY,
-  willNotPreventDefault,
 } from './utils';
 
 interface IViewportSize {
@@ -165,6 +164,8 @@ class ZScroller {
           bar.style.height = scrollerStyle.height + 'px';
         }
         indicators[k] = document.createElement('div');
+        indicators[k].style.userSelect = 'none';
+        indicators[k].setAttribute('unselectable', 'on');
         indicators[
           k
         ].className = `zscroller-indicator zscroller-indicator-${k}`;
@@ -437,10 +438,10 @@ class ZScroller {
 
     this._eventHandlers = [];
   }
-  _bindEvent(container, type, fn, _options?) {
+  _bindEvent(save, container, type, fn, _options?) {
     const { _eventHandlers: eventHandlers } = this;
     const h = addEventListener(container, type, fn, _options);
-    eventHandlers.push(h);
+    if (save) { eventHandlers.push(h); }
     return h;
   }
   _bindEvents() {
@@ -463,6 +464,7 @@ class ZScroller {
         };
 
         this._bindEvent(
+          true,
           container,
           TOUCH_START_EVENT,
           e => {
@@ -476,7 +478,7 @@ class ZScroller {
               onTouchStart(e.target, [e], e.timeStamp);
             }
           },
-          willNotPreventDefault,
+          false,
         );
 
         const onTouchEnd = e => {
@@ -491,6 +493,7 @@ class ZScroller {
         };
 
         this._bindEvent(
+          true,
           container,
           'touchmove',
           e => {
@@ -499,12 +502,13 @@ class ZScroller {
           false,
         );
 
-        this._bindEvent(container, TOUCH_END_EVENT, onTouchEnd);
-        this._bindEvent(container, TOUCH_CANCEL_EVENT, onTouchEnd);
+        this._bindEvent(true, container, TOUCH_END_EVENT, onTouchEnd, false);
+        this._bindEvent(true, container, TOUCH_CANCEL_EVENT, onTouchEnd, false);
       }
 
       // prevent Horizontal Scrolling by default
       this._bindEvent(
+        true,
         container,
         'mousewheel',
         e => {
@@ -518,30 +522,31 @@ class ZScroller {
 
     Object.keys(this._indicators).forEach((type: string) => {
       const indicator = this._indicators[type];
-      this._bindEvent(indicator, 'mousedown', e => {
+      this._bindEvent(true, indicator, 'mousedown', e => {
         if (e.button === 0) {
           this._insideUserEvent = true;
           this._onIndicatorMouseDown(e, type);
-          let moveHandler = this._bindEvent(document, 'mousemove', e => {
+          let moveHandler = this._bindEvent(false, document, 'mousemove', e => {
             this._onIndicatorMouseMove(e, type as Axis);
           });
-          let upHandler = this._bindEvent(document, 'mouseup', e => {
+          const leaveFn = e => {
             this._onIndicatorMouseUp(e, type as Axis);
             moveHandler();
             upHandler();
             this._insideUserEvent = false;
-          });
+          };
+          let upHandler = this._bindEvent(false, document, 'mouseup', leaveFn);
         }
       }, false);
     });
 
     Object.keys(this._scrollbars).forEach(type => {
       const bar = this._scrollbars[type];
-      this._bindEvent(bar, 'mousedown', e => {
+      this._bindEvent(true, bar, 'mousedown', e => {
         if (e.button === 0) {
           this._insideUserEvent = true;
           this._onScrollbarMouseDown(e, type as Axis);
-          let upHandler = this._bindEvent(document, 'mouseup', e => {
+          let upHandler = this._bindEvent(false, window, 'mouseup', e => {
             this._onScrollbarMouseup(e);
             upHandler();
             this._insideUserEvent = false;
@@ -603,7 +608,8 @@ class ZScroller {
       `zscroller-indicator-active`,
       `zscroller-indicator-${type}-active`,
     );
-    e.preventDefault();
+    // https://taye.me/blog/tips/2015/11/16/mouse-drag-outside-iframe/
+    // e.preventDefault();
     e.stopPropagation();
   }
 

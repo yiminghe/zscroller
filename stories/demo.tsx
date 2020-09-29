@@ -243,7 +243,10 @@ const Demo = () => {
                   height: 100 * c_scale,
                   background: 'yellow',
                 }}
-              ></div>
+              >
+
+                <input value="1234567"/>
+              </div>
               {getAnchor('lt')}
               {getAnchor('lb')}
               {getAnchor('rt')}
