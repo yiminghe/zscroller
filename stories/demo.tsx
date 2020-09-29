@@ -17,7 +17,7 @@ const content = React.createRef();
 const scrollingX = React.createRef();
 const scrollingY = React.createRef();
 const locking = React.createRef();
-
+const bouncing = React.createRef();
 const contentHeight = React.createRef();
 const contentWidth = React.createRef();
 const viewportHeight = React.createRef();
@@ -35,7 +35,7 @@ function start() {
   (document.getElementById('start') as any).disabled = true;
   const props = {
     zooming: true,
-    bouncing: false,
+    bouncing: bouncing.current.checked,
     maxZoom,
     minZoom,
     //minIndicatorSize:100,
@@ -147,7 +147,7 @@ const Demo = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      start();
+      //start();
     }, 100);
   }, []);
 
@@ -163,6 +163,8 @@ const Demo = () => {
     <div>
       <div>
         locking: <input type="checkbox" ref={locking} defaultChecked />
+        <br />
+        bouncing: <input type="checkbox" ref={bouncing} defaultChecked />
         <br />
         scrollingX: <input type="checkbox" ref={scrollingX} defaultChecked />
         <br />
