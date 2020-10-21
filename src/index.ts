@@ -63,6 +63,8 @@ const SPRING_MIN_INDICATOR_SIZE = 8;
 
 type XY = { x?: number; y?: number };
 
+const wheelEvent = typeof document !== undefined && 'onwheel' in document ? 'wheel' : 'mousewheel';
+
 class ZScroller {
   private _containerMouseDownTimer: any;
   private _options: IZScrollerOption;
@@ -510,7 +512,7 @@ class ZScroller {
       this._bindEvent(
         true,
         container,
-        'mousewheel',
+        wheelEvent,
         e => {
           this._insideUserEvent = true;
           this._onContainerMouseWheel(e);
