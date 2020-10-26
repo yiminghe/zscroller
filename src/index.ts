@@ -41,7 +41,7 @@ type X = IXY & { width: number };
 
 type Y = IXY & { height: number };
 
-interface IZScrollerOption {
+export interface IZScrollerOption {
   minZoom?: number;
   maxZoom?: number;
   minIndicatorSize?: number;
@@ -54,16 +54,22 @@ interface IZScrollerOption {
   content: IContentSize;
   x?: X;
   y?: Y;
+  defaultScrollX?: number;
+  defaultScrollY?: number;
+  defaultZoom?: number;
   container?: HTMLElement;
   scrollingComplete?: () => any;
-  onScroll?: (left: number, top: number, zoom: number) => any;
+  onScroll?: (x: number, y: number, zoom: number) => any;
 }
 
 const SPRING_MIN_INDICATOR_SIZE = 8;
 
 type XY = { x?: number; y?: number };
 
-const wheelEvent = typeof document !== undefined && 'onwheel' in document ? 'wheel' : 'mousewheel';
+const wheelEvent =
+  typeof document !== undefined && 'onwheel' in document
+    ? 'wheel'
+    : 'mousewheel';
 
 class ZScroller {
   private _containerMouseDownTimer: any;
@@ -327,8 +333,8 @@ class ZScroller {
 
   getScrollPosition() {
     return {
-      left: this._scroller.__scrollLeft,
-      top: this._scroller.__scrollTop,
+      X: this._scroller.__scrollLeft,
+      y: this._scroller.__scrollTop,
     };
   }
 
@@ -443,7 +449,9 @@ class ZScroller {
   _bindEvent(save, container, type, fn, _options?) {
     const { _eventHandlers: eventHandlers } = this;
     const h = addEventListener(container, type, fn, _options);
-    if (save) { eventHandlers.push(h); }
+    if (save) {
+      eventHandlers.push(h);
+    }
     return h;
   }
   _bindEvents() {
@@ -524,37 +532,59 @@ class ZScroller {
 
     Object.keys(this._indicators).forEach((type: string) => {
       const indicator = this._indicators[type];
-      this._bindEvent(true, indicator, 'mousedown', e => {
-        if (e.button === 0) {
-          this._insideUserEvent = true;
-          this._onIndicatorMouseDown(e, type);
-          let moveHandler = this._bindEvent(false, document, 'mousemove', e => {
-            this._onIndicatorMouseMove(e, type as Axis);
-          });
-          const leaveFn = e => {
-            this._onIndicatorMouseUp(e, type as Axis);
-            moveHandler();
-            upHandler();
-            this._insideUserEvent = false;
-          };
-          let upHandler = this._bindEvent(false, document, 'mouseup', leaveFn);
-        }
-      }, false);
+      this._bindEvent(
+        true,
+        indicator,
+        'mousedown',
+        e => {
+          if (e.button === 0) {
+            this._insideUserEvent = true;
+            this._onIndicatorMouseDown(e, type);
+            let moveHandler = this._bindEvent(
+              false,
+              document,
+              'mousemove',
+              e => {
+                this._onIndicatorMouseMove(e, type as Axis);
+              },
+            );
+            const leaveFn = e => {
+              this._onIndicatorMouseUp(e, type as Axis);
+              moveHandler();
+              upHandler();
+              this._insideUserEvent = false;
+            };
+            let upHandler = this._bindEvent(
+              false,
+              document,
+              'mouseup',
+              leaveFn,
+            );
+          }
+        },
+        false,
+      );
     });
 
     Object.keys(this._scrollbars).forEach(type => {
       const bar = this._scrollbars[type];
-      this._bindEvent(true, bar, 'mousedown', e => {
-        if (e.button === 0) {
-          this._insideUserEvent = true;
-          this._onScrollbarMouseDown(e, type as Axis);
-          let upHandler = this._bindEvent(false, window, 'mouseup', e => {
-            this._onScrollbarMouseup(e);
-            upHandler();
-            this._insideUserEvent = false;
-          });
-        }
-      }, false);
+      this._bindEvent(
+        true,
+        bar,
+        'mousedown',
+        e => {
+          if (e.button === 0) {
+            this._insideUserEvent = true;
+            this._onScrollbarMouseDown(e, type as Axis);
+            let upHandler = this._bindEvent(false, window, 'mouseup', e => {
+              this._onScrollbarMouseup(e);
+              upHandler();
+              this._insideUserEvent = false;
+            });
+          }
+        },
+        false,
+      );
     });
   }
 
@@ -623,7 +653,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._initPagePos.ratio.x +
-        this._initPagePos.left,
+          this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -631,7 +661,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._initPagePos.ratio.y +
-        this._initPagePos.top,
+          this._initPagePos.top,
         false,
       );
     }

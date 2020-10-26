@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import ZScroller from '../src';
+import ZScroller, { IZScrollerOption } from '../src';
 import '../assets/index.css';
 import { storiesOf } from '@storybook/react';
 import NumericInput from 'react-numeric-input';
@@ -23,6 +23,9 @@ const contentWidth = React.createRef();
 const viewportHeight = React.createRef();
 const viewportWidth = React.createRef();
 
+const defaultScrollXRef = React.createRef();
+const defaultScrollYRef = React.createRef();
+
 const scaleValue: any = {
   current: {
     value: 1,
@@ -33,7 +36,7 @@ const topValue = React.createRef();
 
 function start() {
   (document.getElementById('start') as any).disabled = true;
-  const props = {
+  const props: IZScrollerOption = {
     zooming: true,
     bouncing: bouncing.current.checked,
     maxZoom,
@@ -52,13 +55,13 @@ function start() {
 
     x: scrollingX.current.checked
       ? {
-        width: parseInt(viewportWidth.current.value) - 12,
-      }
+          width: parseInt(viewportWidth.current.value) - 12,
+        }
       : undefined,
     y: scrollingY.current.checked
       ? {
-        height: parseInt(viewportHeight.current.value) - 12, // padding
-      }
+          height: parseInt(viewportHeight.current.value) - 12, // padding
+        }
       : undefined,
 
     onScroll(left, top) {
@@ -67,6 +70,22 @@ function start() {
       content.current.style.webkitTransform = `translate3d(${-left}px,${-top}px,0)`;
     },
   };
+
+  const defaultScrollX = parseInt(defaultScrollXRef.current.value, 10);
+  const defaultScrollY = parseInt(defaultScrollYRef.current.value, 10);
+  const defaultZoom = parseInt(scaleValue.current.value, 10);
+
+  if (defaultScrollX) {
+    props.defaultScrollX = defaultScrollX;
+  }
+  if (defaultScrollY) {
+    props.defaultScrollY = defaultScrollY;
+  }
+  if (defaultZoom !== 1) {
+    props.defaultZoom = defaultZoom;
+    forceUpdate();
+  }
+
   //console.log('props', props);
   zscroller = new ZScroller(props);
   container.current.appendChild(zscroller.getScrollbar('x'));
@@ -164,6 +183,10 @@ const Demo = () => {
       <div>
         locking: <input type="checkbox" ref={locking} defaultChecked />
         <br />
+        locking: <input type="checkbox" ref={locking} defaultChecked />
+        <br />
+        locking: <input type="checkbox" ref={locking} defaultChecked />
+        <br />
         bouncing: <input type="checkbox" ref={bouncing} defaultChecked />
         <br />
         scrollingX: <input type="checkbox" ref={scrollingX} defaultChecked />
@@ -187,6 +210,10 @@ const Demo = () => {
           viewport size:{' '}
           <input id="viewport-width" ref={viewportWidth} defaultValue={200} /> X
           <input id="viewport-height" ref={viewportHeight} defaultValue={200} />
+          <br />
+          defaultScrollX: <input ref={defaultScrollXRef} defaultValue="0" />
+          <br />
+          defaultScrollY: <input ref={defaultScrollYRef} defaultValue="0" />
           <br />
           scale:{' '}
           <NumericInput
@@ -246,8 +273,7 @@ const Demo = () => {
                   background: 'yellow',
                 }}
               >
-
-                <input value="1234567"/>
+                <input value="1234567" />
               </div>
               {getAnchor('lt')}
               {getAnchor('lb')}

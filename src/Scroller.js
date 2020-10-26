@@ -78,6 +78,18 @@ Scroller = function(callback, options) {
   for (var key in options) {
     this.options[key] = options[key];
   }
+
+  if ('defaultZoom' in options) {
+    this.__zoomLevel = options.defaultZoom;
+  }
+
+  if ('defaultScrollX' in options) {
+    this.__scrollLeft = options.defaultScrollX;
+  }
+
+  if ('defaultScrollY' in options) {
+    this.__scrollTop = options.defaultScrollY;
+  }
 };
 
 // Easing Equations (c) 2003 Robert Penner, all rights reserved.

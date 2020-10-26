@@ -1,5 +1,8 @@
 # History
 ----
+## 0.7.0 / 2020-10-26
+
+- support defaultScrollX, defaultScrollY, defaultZoom
 
 ## 0.6.0 / 2020-02-20
 

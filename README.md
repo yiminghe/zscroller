@@ -72,6 +72,9 @@ interface Y {
 //  minZoom defaults to 0.1
 //  maxZoom defaults to 10
 // locking defaults to true
+//  defaultScrollX defaults to 0
+//  defaultScrollY defaults to 0
+//  defaultZoom defaults to 1
 interface IZScrollerOption {
   minZoom?: number;
   maxZoom?: number;
@@ -82,16 +85,19 @@ interface IZScrollerOption {
   content: IContentSize;
   x?: X;
   y?: Y;
+  defaultScrollX?:number;
+  defaultScrollY?:number;
+  defaultZoom?:number;
   container?: HTMLElement;
   scrollingComplete?: () => any;
-  onScroll?: (left: number, top: number, zoom: number) => any;
+  onScroll?: (x: number, y: number, zoom: number) => any;
 }
 declare class ZScroller {
     constructor(_options: ZScrollerOption);
     scrollTo(x: number, y: number, animate: boolean): void;
     scrollBy(x: number, y: number, animate: boolean): void;
     getScrollbar(type: any): HTMLElement;
-    getScrollPosition(): {left:number;top:number;};
+    getScrollPosition(): {x:number;y:number;};
     setDisabled(disabled: any): void;
     // relayout
     setDimensions({ viewport, content, x, y, }?: {
