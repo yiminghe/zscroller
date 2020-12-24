@@ -46,6 +46,7 @@ type X = IXY & { width: number };
 type Y = IXY & { height: number };
 
 export interface IZScrollerOption {
+  autohideScrollbar?: boolean;
   minZoom?: number;
   maxZoom?: number;
   minIndicatorSize?: number;
@@ -107,6 +108,7 @@ class ZScroller {
       viewport,
       content,
       onScroll,
+      autohideScrollbar,
       x,
       y,
       minIndicatorSize,
@@ -117,9 +119,15 @@ class ZScroller {
     let indicatorsSize;
     let indicatorsPos;
 
+    let autohideScrollbarFlag=autohideScrollbar;
+
     this._minIndicatorSize = minIndicatorSize || 25;
 
     this._options = _options;
+
+    if (autohideScrollbar === undefined) {
+      autohideScrollbarFlag = isTouch;
+    }
 
     this._zOptions = {
       ...zOptions,
@@ -134,7 +142,7 @@ class ZScroller {
           if (_options.scrollingComplete) {
             _options.scrollingComplete();
           }
-          if (scrollbars && isTouch) {
+          if (scrollbars && autohideScrollbarFlag) {
             this.autoHideScrollbarForTouch();
           }
         }, 0);
@@ -212,7 +220,7 @@ class ZScroller {
     // bind events
     this._bindEvents();
 
-    if (isTouch) {
+    if (autohideScrollbarFlag) {
       this._setScrollbarOpacity('x', 0);
       this._setScrollbarOpacity('y', 0);
     }
@@ -509,7 +517,7 @@ class ZScroller {
         this._bindEvent(
           true,
           container,
-          TOUCH_MOVE_EVENT,
+          'touchmove',
           e => {
             if (this._insideUserEvent) {
               const touches = e.touches ? e.touches : [e];
@@ -665,7 +673,7 @@ class ZScroller {
     if (type === 'x') {
       this._scroller.scrollTo(
         (e.pageX - this._initPagePos.pageX) * this._initPagePos.ratio.x +
-          this._initPagePos.left,
+        this._initPagePos.left,
         this._initPagePos.top,
         false,
       );
@@ -673,7 +681,7 @@ class ZScroller {
       this._scroller.scrollTo(
         this._initPagePos.left,
         (e.pageY - this._initPagePos.pageY) * this._initPagePos.ratio.y +
-          this._initPagePos.top,
+        this._initPagePos.top,
         false,
       );
     }
