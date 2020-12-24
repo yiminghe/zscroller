@@ -2,8 +2,12 @@ import Scroller from './Scroller';
 import {
   isTouch,
   TOUCH_START_EVENT,
+  TOUCH_MOVE_EVENT,
   TOUCH_END_EVENT,
   TOUCH_CANCEL_EVENT,
+  MOUSE_DOWN_EVENT,
+  MOUSE_MOVE_EVENT,
+  MOUSE_UP_EVENT,
   preventDefault,
   setTransform,
   iOSWebViewFix,
@@ -505,9 +509,12 @@ class ZScroller {
         this._bindEvent(
           true,
           container,
-          'touchmove',
+          TOUCH_MOVE_EVENT,
           e => {
-            onTouchMove(e, e.touches);
+            if (this._insideUserEvent) {
+              const touches = e.touches ? e.touches : [e];
+              onTouchMove(e, touches);
+            }
           },
           false,
         );
@@ -535,7 +542,7 @@ class ZScroller {
       this._bindEvent(
         true,
         indicator,
-        'mousedown',
+        MOUSE_DOWN_EVENT,
         e => {
           if (e.button === 0) {
             this._insideUserEvent = true;
@@ -543,7 +550,7 @@ class ZScroller {
             let moveHandler = this._bindEvent(
               false,
               document,
-              'mousemove',
+              MOUSE_MOVE_EVENT,
               e => {
                 this._onIndicatorMouseMove(e, type as Axis);
               },
@@ -557,7 +564,7 @@ class ZScroller {
             let upHandler = this._bindEvent(
               false,
               document,
-              'mouseup',
+              MOUSE_UP_EVENT,
               leaveFn,
             );
           }
@@ -571,16 +578,21 @@ class ZScroller {
       this._bindEvent(
         true,
         bar,
-        'mousedown',
+        MOUSE_DOWN_EVENT,
         e => {
           if (e.button === 0) {
             this._insideUserEvent = true;
             this._onScrollbarMouseDown(e, type as Axis);
-            let upHandler = this._bindEvent(false, window, 'mouseup', e => {
-              this._onScrollbarMouseup(e);
-              upHandler();
-              this._insideUserEvent = false;
-            });
+            let upHandler = this._bindEvent(
+              false,
+              window,
+              MOUSE_UP_EVENT,
+              e => {
+                this._onScrollbarMouseup(e);
+                upHandler();
+                this._insideUserEvent = false;
+              },
+            );
           }
         },
         false,

@@ -31,13 +31,27 @@ export const TOUCH_START_EVENT = SUPPORT_POINTER_EVENTS
   ? 'pointerdown'
   : 'touchstart';
 
-export const TOUCH_CANCEL_EVENT = SUPPORT_POINTER_EVENTS
-  ? 'pointercancel'
-  : 'touchcancel';
+export const TOUCH_MOVE_EVENT = SUPPORT_POINTER_EVENTS
+  ? 'pointermove'
+  : 'touchmove';
 
 export const TOUCH_END_EVENT = SUPPORT_POINTER_EVENTS
   ? 'pointerup'
   : 'touchend';
+
+export const TOUCH_CANCEL_EVENT = SUPPORT_POINTER_EVENTS
+  ? 'pointercancel'
+  : 'touchcancel';
+
+export const MOUSE_DOWN_EVENT = SUPPORT_POINTER_EVENTS
+  ? 'pointerdown'
+  : 'mousedown';
+
+export const MOUSE_MOVE_EVENT = SUPPORT_POINTER_EVENTS
+  ? 'pointermove'
+  : 'mousemove';
+
+export const MOUSE_UP_EVENT = SUPPORT_POINTER_EVENTS ? 'pointerup' : 'mouseup';
 
 export function setTransform(nodeStyle, value) {
   nodeStyle.transform = value;
@@ -95,8 +109,6 @@ export function addEventListener(
   };
 }
 
-
-
 let globalBrowser;
 
 function getBrowser() {
@@ -104,10 +116,17 @@ function getBrowser() {
     return globalBrowser;
   }
   const ua = navigator.userAgent.toLowerCase();
-  var match = /(chrome)[ \/]([\w.]+)/.exec(ua) || /(webkit)[ \/]([\w.]+)/.exec(ua) || /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) || /(msie) ([\w.]+)/.exec(ua) || ua.indexOf('compatible') < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua) || [];
+  var match =
+    /(chrome)[ \/]([\w.]+)/.exec(ua) ||
+    /(webkit)[ \/]([\w.]+)/.exec(ua) ||
+    /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
+    /(msie) ([\w.]+)/.exec(ua) ||
+    (ua.indexOf('compatible') < 0 &&
+      /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua)) ||
+    [];
   const matched = {
     browser: match[1] || '',
-    version: match[2] || '0'
+    version: match[2] || '0',
   };
   globalBrowser = {};
   if (matched.browser) {
@@ -141,24 +160,26 @@ function toDeltaInt(delta) {
 }
 
 export function deltaX(event) {
-  let delta = 'deltaX' in event
-    ? event.deltaX
-    : // Fallback to `wheelDeltaX` for Webkit and normalize (right is positive).
-    'wheelDeltaX' in event
+  let delta =
+    'deltaX' in event
+      ? event.deltaX
+      : // Fallback to `wheelDeltaX` for Webkit and normalize (right is positive).
+      'wheelDeltaX' in event
       ? -event.wheelDeltaX
       : 0;
   return toDeltaInt(delta);
 }
 
 export function deltaY(event) {
-  let delta = 'deltaY' in event
-    ? event.deltaY
-    : // Fallback to `wheelDeltaY` for Webkit and normalize (down is positive).
-    'wheelDeltaY' in event
+  let delta =
+    'deltaY' in event
+      ? event.deltaY
+      : // Fallback to `wheelDeltaY` for Webkit and normalize (down is positive).
+      'wheelDeltaY' in event
       ? -event.wheelDeltaY
       : // Fallback to `wheelDelta` for IE<9 and normalize (down is positive).
       'wheelDelta' in event
-        ? -event.wheelDelta
-        : 0;
+      ? -event.wheelDelta
+      : 0;
   return toDeltaInt(delta);
 }

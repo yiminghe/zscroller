@@ -24,4 +24,5 @@ coverage
 *.map
 /pkg/
 yarn.lock
+package-lock.json
 /storybook-static/
