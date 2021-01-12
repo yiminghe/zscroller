@@ -116,7 +116,7 @@ declare class ZScroller {
 import ZScroller from 'zscroller';
 
 const zscroller = new ZScroller({
-    container: container,
+    container,
     viewport: {
       height: container.clientHeight - 20, // padding
       width: container.clientWidth - 20,
@@ -126,11 +126,11 @@ const zscroller = new ZScroller({
       height: content.offsetHeight
     },
     x: {
-      width: container.current.clientWidth - 4, // padding
+      width: container.clientWidth - 4, // padding
 
     },
     y: {
-      height: container.current.clientHeight - 4, // padding
+      height: container.clientHeight - 4, // padding
     },
     onScroll(left, top) {
       content.style.transform = `translate3d(${-left}px,${-top}px,0)`
